@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Список автомобилей таксопарка</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            color: black;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            font-family: normal;
+        }
+        h1 {
+            color: #333;
+        }
+        .add-button {
+            display: inline-block;
+            margin-bottom: 20px;
+            padding: 10px 15px;
+            color: black;
+            cursor: pointer;
+        }
+        .delete-button {
+            color: red;
+            text-decoration: none;
+            margin-left: 10px;
+        }
+        .brands-link {
+            display: inline-block;
+            margin-left: 20px;
+            padding: 10px 15px;
+            color: black;
+            cursor: pointer;
+        }
+        .back-link {
+            display: inline-block;
+            padding: 10px 15px;
+            color: black;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Автомобили таксопарка</h1>
+
+    <div>
+        <a href="/cars/new" class="add-button">+Добавить машину</a>
+        <a href="/brands" class="brands-link">Список брендов</a>
+        <a href="/enterprises" class="back-link">Предприятия</a>
+        <a href="/drivers" class="add-button">Водители</a>
+    </div>
+
+    <table>
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Гос. номер</th>
+            <th>Год выпуска</th>
+            <th>Пробег (км)</th>
+            <th>Стоимость (Р)</th>
+            <th>Бренд</th>
+            <th>Тип авто</th>
+            <th>Количество мест</th>
+            <th>Вес авто (тонн)</th>
+            <th>Объем бака (л)</th>
+            <th>Мощность двигателя (л.с.)</th>
+            <th>Предприятие</th>
+            <th>Водители</th>
+            <th>Активный водитель</th>
+            <th>Действия</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="car : ${cars}">
+            <td th:text="${car.id}">1</td>
+            <td th:text="${car.licensePlate}">А123ВС</td>
+            <td th:text="${car.yearOfRelease}">2022</td>
+            <td th:text="${car.carMileage}">45000</td>
+            <td th:text="${car.price}">2 800 000</td>
+            <td th:text="${car.brand.brandName}">Toyota</td>
+            <td th:text="${car.brand.vehicleType}">Седан</td>
+            <td th:text="${car.brand.numberOfSeats}">4</td>
+            <td th:text="${car.brand.weight}">1.4</td>
+            <td th:text="${car.brand.fuelTankCapacity}">2.5</td>
+            <td th:text="${car.brand.enginePower}">150</td>
+            <td th:text="${car.enterprise != null ? car.enterprise.name : '—'}">—
+            <td th:text="${car.drivers != null && !car.drivers.isEmpty() ? car.drivers.![name] : '—'}">—
+            </td>
+            <td th:text="${car.activeDriver != null ? car.activeDriver.name : '—'}">—</td>
+
+            <td>
+                <a th:href="@{/cars/edit/{id}(id=${car.id})}" class="edit-button"> Изменить</a>
+                <a th:href="@{/cars/delete/{id}(id=${car.id})}"
+                   class="delete-button"
+                   onclick="return confirm('Удалить машину {{car.licensePlate}}?')"> Удалить</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <div th:if="${cars.isEmpty()}" style="margin-top: 20px; color: red;">
+        Пока нет добавленных автомобилей.
+    </div>
+</div>
+</body>
+</html>

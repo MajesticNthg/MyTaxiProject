@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Редактирование водителя</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            background-color: white;
+            padding: 20px;
+            border: 1px solid #ddd;
+        }
+
+        h1 {
+            color: #333
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: inline-block;
+            width: 120px;
+            font-weight: normal;
+        }
+
+        input {
+            padding: 6px;
+            width: 200px;
+            border: 1px solid #ccc;
+            font-size: 14px;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #999;
+        }
+
+        .readonly-id {
+            background-color: #f9f9f9;
+            padding: 6px;
+            width: 200px;
+            border: 1px solid #ccc;
+            display: inline-block;
+        }
+
+        .buttons-group {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            padding: 6px 12px;
+            border: 1px solid #ccc;
+            background-color: #fff;
+            color: #333;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        button:hover {
+            background-color: #f0f0f0;
+            border-color: #999;
+        }
+
+        .cancel {
+            display: inline-block;
+            padding: 6px 12px;
+            border: 1px solid #ccc;
+            background-color: #fff;
+            color: #333;
+            text-decoration: none;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .cancel:hover {
+            background-color: #f0f0f0;
+            border-color: #999;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>✏️ Редактирование водителя</h1>
+
+    <form action="#" th:action="@{/drivers/update/{id}(id=${driver.id})}"
+          th:object="${driver}"
+          method="post">
+
+        <div class="form-group">
+            <label>ID:</label>
+            <span class="readonly-id" th:text="${driver.id}">1</span>
+        </div>
+
+        <div class="form-group">
+            <label>Имя:</label>
+            <input type="text" th:field="*{name}" required>
+        </div>
+
+        <div class="form-group">
+            <label>Возраст:</label>
+            <input type="text" th:field="*{age}" required>
+        </div>
+
+        <div class="form-group">
+            <label>Зарплата (₽):</label>
+            <input type="text" th:field="*{salary}" required>
+        </div>
+
+        <div class="form-group">
+            <label>Предприятие:</label>
+            <select name="enterpriseId">
+                <option value="">— Без предприятия —</option>
+                <option th:each="enterprise : ${enterprises}"
+                        th:value="${enterprise.id}"
+                        th:text="${enterprise.name}"
+                        th:selected="${enterprise.id == driver.enterprise.id}">
+                </option>
+            </select>
+        </div>
+
+        <div class="buttons-group">
+            <button type="submit">💾 Сохранить изменения</button>
+            <a href="/drivers" class="cancel">Отмена</a>
+        </div>
+    </form>
+</div>
+</body>
+</html>

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Добавление бренда</title>
+    <style>
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-family: Arial, sans-serif;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: inline-block;
+            width: 180px;
+            font-weight: bold;
+        }
+        input, select {
+            padding: 8px;
+            width: 250px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #333;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .cancel {
+            background-color: #ccc;
+            margin-left: 10px;
+        }
+        .cancel:hover {
+            background-color: #bbb;
+        }
+        h1 {
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Добавление нового бренда</h1>
+
+    <form action="#" th:action="@{/brands/save}" th:object="${brand}" method="post">
+        <div class="form-group">
+            <label>Название бренда:</label>
+            <input type="text" th:field="*{brandName}" required>
+        </div>
+
+        <div class="form-group">
+            <label>Тип авто:</label>
+            <input type="text" th:field="*{vehicleType}" required>
+        </div>
+
+        <div class="form-group">
+            <label>Количество мест:</label>
+            <input type="text" th:field="*{numberOfSeats}" required>
+        </div>
+
+        <div class="form-group">
+            <label>Вес (кг):</label>
+            <input type="text" th:field="*{weight}" required>
+        </div>
+
+        <div class="form-group">
+            <label>Объем бака (л):</label>
+            <input type="text" th:field="*{fuelTankCapacity}" required>
+        </div>
+
+        <div class="form-group">
+            <label>Мощность (л.с.):</label>
+            <input type="text" th:field="*{enginePower}" required>
+        </div>
+
+        <div class="form-group">
+            <button type="submit">Сохранить</button>
+            <a href="/brands" class="cancel" style="padding: 10px 20px; background-color: #ccc; text-decoration: none; color: black; border-radius: 3px;">Отмена</a>
+        </div>
+    </form>
+</div>
+</body>
+</html>

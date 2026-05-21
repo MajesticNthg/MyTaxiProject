@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Список Брендов таксопарка</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            color: black;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            font-family: normal;
+        }
+        h1 {
+            color: #333;
+        }
+        .add-button {
+            display: inline-block;
+            margin-bottom: 20px;
+            padding: 10px 15px;
+            color: black;
+        }
+        .delete-button {
+            color: red;
+            text-decoration: none;
+        }
+        .delete-button:hover {
+            text-decoration: underline;
+        }
+        .cars-link {
+            display: inline-block;
+            margin-left: 20px;
+            padding: 10px 15px;
+            color: black;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Автобренды таксопарка</h1>
+
+    <div>
+        <a href="/brands/new" class="add-button">+ Добавить бренд</a>
+        <a href="/cars" class="cars-link"> К списку автомобилей</a>
+    </div>
+
+    <table>
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Название бренда</th>
+            <th>Тип авто</th>
+            <th>Количество мест</th>
+            <th>Вес (тонн)</th>
+            <th>Объем бака</th>
+            <th>Мощность двигателя (л.с.)</th>
+            <th>Действия</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="brand : ${brands}">
+            <td th:text="${brand.id}">1</td>
+            <td th:text="${brand.brandName}">Toyota</td>
+            <td th:text="${brand.vehicleType}">Седан</td>
+            <td th:text="${brand.numberOfSeats}">4</td>
+            <td th:text="${brand.weight}">1450</td>
+            <td th:text="${brand.fuelTankCapacity}">50</td>
+            <td th:text="${brand.enginePower}">150</td>
+            <td>
+                <a th:href="@{/brands/edit/{id}(id=${brand.id})}" class="edit-button"> Изменить</a>
+
+                <a th:href="@{/brands/delete/{id}(id=${brand.id})}"
+                   class="delete-button"
+                   onclick="return confirm('Удалить бренд {{brand.brandName}}? Удалятся все машины этого бренда!')"> Удалить</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <div th:if="${brands.isEmpty()}" style="margin-top: 20px; color: red;">
+        Пока нет добавленных брендов.
+    </div>
+
+</div>
+</body>
+</html>
