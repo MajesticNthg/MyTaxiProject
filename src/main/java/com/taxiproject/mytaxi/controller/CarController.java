@@ -42,6 +42,7 @@ public class CarController {
         model.addAttribute("enterprises", enterpriseService.getAllEnterprises());
 //        model.addAttribute("allDrivers", driverService.getAllDrivers());
         return "create-car-form";
+
     }
 
     @PostMapping("save")
