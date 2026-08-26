@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Управление машинами</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        .navbar-custom {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .navbar-custom .navbar-brand,
+        .navbar-custom .nav-link {
+            color: white;
+        }
+        .navbar-custom .nav-link:hover {
+            color: rgba(255,255,255,0.8);
+        }
+        .card-enterprise {
+            border-radius: 12px;
+            border: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+        .table-custom {
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        .table-custom thead {
+            background: #667eea;
+            color: white;
+        }
+        .logout-btn {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            border-radius: 8px;
+            padding: 0.4rem 1rem;
+            transition: 0.3s;
+            text-decoration: none;
+        }
+        .logout-btn:hover {
+            background: rgba(255,255,255,0.3);
+            color: white;
+        }
+        .btn-action {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: #6c757d;
+        }
+        .empty-state i {
+            font-size: 4rem;
+            color: #dee2e6;
+            margin-bottom: 1rem;
+        }
+        .back-link {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .back-link:hover {
+            color: rgba(255,255,255,0.8);
+        }
+    </style>
+</head>
+<body>
+
+<!-- Навигация -->
+<nav class="navbar navbar-expand-lg navbar-custom">
+    <div class="container">
+        <a class="navbar-brand" href="/enterprises.html">
+            <i class="bi bi-arrow-left"></i> Назад к предприятиям
+        </a>
+        <div class="ms-auto d-flex align-items-center gap-3">
+                <span class="text-white" id="usernameDisplay">
+                    <i class="bi bi-person-circle"></i> Менеджер
+                </span>
+            <a href="#" class="logout-btn" id="logoutBtn">
+                <i class="bi bi-box-arrow-right"></i> Выйти
+            </a>
+        </div>
+    </div>
+</nav>
+
+<!-- Основное содержимое -->
+<div class="container mt-4">
+    <!-- Заголовок -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 id="enterpriseName">Управление машинами</h2>
+            <p class="text-muted" id="enterpriseCity"></p>
+        </div>
+        <button class="btn btn-primary" id="addCarBtn">
+            <i class="bi bi-plus-circle"></i> Добавить машину
+        </button>
+    </div>
+
+    <!-- Таблица машин -->
+    <div class="table-responsive">
+        <table class="table table-custom table-hover">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Госномер</th>
+                <th>Год выпуска</th>
+                <th>Пробег</th>
+                <th>Цена (₽)</th>
+                <th>Бренд</th>
+                <th class="text-center">Действия</th>
+            </tr>
+            </thead>
+            <tbody id="carsTableBody">
+            <!-- Машины будут добавлены через JS -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Пустое состояние -->
+    <div id="emptyState" class="empty-state" style="display:none;">
+        <i class="bi bi-car-front"></i>
+        <h5>Нет машин</h5>
+        <p class="text-muted">Добавьте первую машину в это предприятие</p>
+    </div>
+</div>
+
+<!-- Модальное окно для создания/редактирования машины -->
+<div class="modal fade" id="carModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="carModalTitle">Добавить машину</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="carForm">
+                    <input type="hidden" id="carId" value="">
+
+                    <div class="mb-3">
+                        <label for="licensePlate" class="form-label">Госномер</label>
+                        <input type="text" class="form-control" id="licensePlate" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="yearOfRelease" class="form-label">Год выпуска</label>
+                        <input type="text" class="form-control" id="yearOfRelease" placeholder="например: 2023">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="carMileage" class="form-label">Пробег</label>
+                        <input type="text" class="form-control" id="carMileage" placeholder="например: 15000">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="price" class="form-label">Цена (₽)</label>
+                        <input type="number" class="form-control" id="price" placeholder="например: 1500000">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="brandId" class="form-label">Бренд</label>
+                        <select class="form-select" id="brandId">
+                            <option value="">Выберите бренд</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="activeDriverId" class="form-label">Активный водитель</label>
+                        <select class="form-select" id="activeDriverId">
+                            <option value="">Нет активного водителя</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                <button type="button" class="btn btn-primary" id="saveCarBtn">Сохранить</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно подтверждения удаления -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Подтверждение удаления</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Вы уверены, что хотите удалить машину <strong id="deleteCarPlate"></strong>?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Удалить</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const API_BASE = 'http://172.18.160.1:8080';
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const enterpriseId = urlParams.get('id');
+
+    if (!enterpriseId) {
+        window.location.href = '/enterprises.html';
+    }
+
+    let currentEnterprise = null;
+    let deleteCarId = null;
+    let isEditMode = false;
+
+    const carModal = new bootstrap.Modal(document.getElementById('carModal'));
+    const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+
+    function getToken() {
+        return localStorage.getItem('token');
+    }
+
+    function redirectToLogin() {
+        localStorage.removeItem('token');
+        window.location.href = '/login.html';
+    }
+
+    async function fetchWithAuth(url, options = {}) {
+        const token = getToken();
+        if (!token) {
+            redirectToLogin();
+            return;
+        }
+        const response = await fetch(url, {
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+                ...options.headers
+            }
+        });
+        if (response.status === 401 || response.status === 403) {
+            localStorage.removeItem('token');
+            redirectToLogin();
+            return;
+        }
+        return response;
+    }
+
+    async function loadBrands() {
+        try {
+            const response = await fetchWithAuth(`${API_BASE}/api/brands`);
+            if (!response) return;
+            const brands = await response.json();
+            const select = document.getElementById('brandId');
+            select.innerHTML = '<option value="">Выберите бренд</option>';
+            brands.forEach(brand => {
+                select.innerHTML += `<option value="${brand.id}">${brand.brandName}</option>`;
+            });
+        } catch (error) {
+            console.error('Error loading brands:', error);
+        }
+    }
+
+    async function loadEnterprise() {
+        try {
+            const enterpriseResponse = await fetchWithAuth(`${API_BASE}/api/enterprises/${enterpriseId}`);
+            if (!enterpriseResponse) return;
+            currentEnterprise = await enterpriseResponse.json();
+
+            document.getElementById('enterpriseName').textContent = currentEnterprise.name || 'Управление машинами';
+            document.getElementById('enterpriseCity').textContent = currentEnterprise.city || '';
+
+            const carsResponse = await fetchWithAuth(`${API_BASE}/api/cars/paginated?enterpriseId=${enterpriseId}&page=0&size=100`);
+            if (!carsResponse) return;
+            const carsData = await carsResponse.json();
+
+            renderCars(carsData.content || []);
+            await loadDrivers();
+        } catch (error) {
+            console.error('Error loading enterprise:', error);
+        }
+    }
+
+    async function loadDrivers() {
+    try {
+        const response = await fetchWithAuth(`${API_BASE}/api/drivers?enterpriseId=${enterpriseId}`);
+        if (!response) return;
+        const drivers = await response.json();
+
+        const select = document.getElementById('activeDriverId');
+        // Очищаем список, оставляя только "Нет активного водителя"
+        select.innerHTML = '<option value="">Нет активного водителя</option>';
+
+        drivers.forEach(driver => {
+            select.innerHTML += `<option value="${driver.id}">${driver.name} (ID: ${driver.id})</option>`;
+        });
+    } catch (error) {
+        console.error('Error loading drivers:', error);
+    }
+}
+
+    function renderCars(cars) {
+        const tbody = document.getElementById('carsTableBody');
+        const emptyState = document.getElementById('emptyState');
+
+        if (!cars || cars.length === 0) {
+            tbody.innerHTML = '';
+            emptyState.style.display = 'block';
+            return;
+        }
+
+        emptyState.style.display = 'none';
+
+        tbody.innerHTML = cars.map(car => `
+            <tr>
+                <td>${car.id}</td>
+                <td><strong>${car.licensePlate || '—'}</strong></td>
+                <td>${car.yearOfRelease || '—'}</td>
+                <td>${car.carMileage || '0'}</td>
+                <td>${car.price ? car.price.toLocaleString() : '—'}</td>
+                <td>${car.brandName || '—'}</td>
+                <td class="text-center">
+                    <button class="btn btn-warning btn-action edit-car" data-id="${car.id}">
+                        <i class="bi bi-pencil"></i> Редактировать
+                    </button>
+                    <button class="btn btn-danger btn-action delete-car" data-id="${car.id}" data-plate="${car.licensePlate}">
+                        <i class="bi bi-trash"></i> Удалить
+                    </button>
+                </td>
+            </tr>
+        `).join('');
+
+        document.querySelectorAll('.edit-car').forEach(btn => {
+            btn.addEventListener('click', () => openEditCar(parseInt(btn.dataset.id)));
+        });
+
+        document.querySelectorAll('.delete-car').forEach(btn => {
+            btn.addEventListener('click', () => {
+                deleteCarId = parseInt(btn.dataset.id);
+                document.getElementById('deleteCarPlate').textContent = btn.dataset.plate || 'без номера';
+                deleteModal.show();
+            });
+        });
+    }
+
+    document.getElementById('addCarBtn').addEventListener('click', () => {
+        isEditMode = false;
+        document.getElementById('carModalTitle').textContent = 'Добавить машину';
+        document.getElementById('carForm').reset();
+        document.getElementById('carId').value = '';
+        document.getElementById('activeDriverId').value = '';
+        carModal.show();
+    });
+
+    async function openEditCar(carId) {
+        try {
+            const response = await fetchWithAuth(`${API_BASE}/api/cars/${carId}`);
+            if (!response) return;
+            const car = await response.json();
+
+            isEditMode = true;
+            document.getElementById('carModalTitle').textContent = 'Редактировать машину';
+            document.getElementById('carId').value = car.id;
+            document.getElementById('licensePlate').value = car.licensePlate || '';
+            document.getElementById('yearOfRelease').value = car.yearOfRelease || '';
+            document.getElementById('carMileage').value = car.carMileage || '';
+            document.getElementById('price').value = car.price || '';
+            document.getElementById('brandId').value = car.brandId || '';
+            document.getElementById('activeDriverId').value = car.activeDriverId || '';
+
+            carModal.show();
+        } catch (error) {
+            console.error('Error loading car:', error);
+        }
+    }
+
+    document.getElementById('saveCarBtn').addEventListener('click', async () => {
+        const carId = document.getElementById('carId').value;
+        const licensePlate = document.getElementById('licensePlate').value.trim();
+        const yearOfRelease = document.getElementById('yearOfRelease').value.trim();
+        const carMileage = document.getElementById('carMileage').value.trim();
+        const price = parseFloat(document.getElementById('price').value);
+        const brandId = parseInt(document.getElementById('brandId').value);
+        const activeDriverId = document.getElementById('activeDriverId').value;
+
+        if (!licensePlate) {
+            alert('Введите госномер');
+            return;
+        }
+
+        const carData = {
+            licensePlate,
+            yearOfRelease,
+            carMileage,
+            price,
+            brandId,
+            enterpriseId: parseInt(enterpriseId),
+            driverIds: activeDriverId ? [parseInt(activeDriverId)] : [],
+            activeDriverId: activeDriverId ? parseInt(activeDriverId) : null
+        };
+
+        try {
+            let response;
+            if (isEditMode) {
+                response = await fetchWithAuth(`${API_BASE}/api/cars/${carId}`, {
+                    method: 'PUT',
+                    body: JSON.stringify(carData)
+                });
+            } else {
+                response = await fetchWithAuth(`${API_BASE}/api/cars`, {
+                    method: 'POST',
+                    body: JSON.stringify(carData)
+                });
+            }
+
+            if (response && response.ok) {
+                carModal.hide();
+                loadEnterprise();
+            } else {
+                alert('Ошибка при сохранении машины');
+            }
+        } catch (error) {
+            console.error('Error saving car:', error);
+            alert('Ошибка при сохранении машины');
+        }
+    });
+
+document.getElementById('confirmDeleteBtn').addEventListener('click', async () => {
+    if (!deleteCarId) return;
+
+    try {
+        const response = await fetchWithAuth(`${API_BASE}/api/cars/${deleteCarId}`, {
+            method: 'DELETE'
+        });
+
+        if (response && response.ok) {
+            deleteModal.hide();
+            loadEnterprise();
+        } else {
+            const errorText = await response.text();
+            let errorMessage = 'Ошибка при удалении машины';
+
+            try {
+                const errorJson = JSON.parse(errorText);
+                if (errorJson.error) {
+                    errorMessage = errorJson.error;
+                }
+            } catch (e) {
+                if (errorText) {
+                    errorMessage = errorText;
+                }
+            }
+
+            alert(errorMessage);
+        }
+    } catch (error) {
+        console.error('Error deleting car:', error);
+        alert('Ошибка при удалении машины');
+    }
+});
+
+    document.getElementById('logoutBtn').addEventListener('click', (e) => {
+        e.preventDefault();
+        localStorage.removeItem('token');
+        window.location.href = '/login.html';
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const token = getToken();
+        if (!token) {
+            redirectToLogin();
+            return;
+        }
+
+        try {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            document.getElementById('usernameDisplay').innerHTML =
+                `<i class="bi bi-person-circle"></i> ${payload.sub || 'Менеджер'}`;
+        } catch (e) {
+            console.warn('Could not parse token');
+        }
+
+        loadBrands();
+        loadEnterprise();
+    });
+</script>
+</body>
+</html>

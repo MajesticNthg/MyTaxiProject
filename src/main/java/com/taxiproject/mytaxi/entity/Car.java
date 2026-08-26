@@ -13,7 +13,7 @@ public class Car {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column (unique = true)
+    @Column (unique = true, nullable = false)
     private String licensePlate;
 
     private String yearOfRelease;

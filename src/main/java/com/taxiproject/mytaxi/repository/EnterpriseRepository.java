@@ -6,6 +6,7 @@ import com.taxiproject.mytaxi.projection.EnterpriseProjection;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import java.util.Optional;
 
 import java.util.List;
 
@@ -33,45 +34,48 @@ public interface EnterpriseRepository extends JpaRepository<Enterprise, Integer>
     EnterpriseProjection findEnterpriseByIdProjection(@Param("id") Integer id);
 
     @Query(value = """
-                SELECT CAST(
+    SELECT
+        JSONB_BUILD_OBJECT(
+            'id', e.id,
+            'name', e.name,
+            'city', e.city,
+            'employeeCount', e.employee_count,
+            'cars', COALESCE(
+                (SELECT JSONB_AGG(
                     JSONB_BUILD_OBJECT(
-                        'id', e.id,
-                        'name', e.name,
-                        'city', e.city,
-                        'employeeCount', e.employee_count,
-            
-                        'cars', COALESCE(
-                            (
-                                SELECT JSONB_AGG(
-                                    JSONB_BUILD_OBJECT(
-                                        'id', c.id,
-                                        'licensePlate', c.license_plate
-                                    )
-                                )
-                                FROM cars c
-                                WHERE c.enterprise_id = e.id
-                            ),
-                            '[]'::jsonb
-                        ),
-            
-                        'drivers', COALESCE(
-                            (
-                                SELECT JSONB_AGG(
-                                    JSONB_BUILD_OBJECT(
-                                        'id', d.id,
-                                        'name', d.name
-                                    )
-                                )
-                                FROM drivers d
-                                WHERE d.enterprise_id = e.id
-                            ),
-                            '[]'::jsonb
-                        )
-                    ) AS TEXT
-                )
-                FROM enterprises e
-                WHERE e.id = :id
-            """, nativeQuery = true)
+                        'id', c.id,
+                        'licensePlate', c.license_plate
+                    )
+                ) FROM cars c WHERE c.enterprise_id = e.id),
+                '[]'::jsonb
+            ),
+            'drivers', COALESCE(
+                (SELECT JSONB_AGG(
+                    JSONB_BUILD_OBJECT(
+                        'id', d.id,
+                        'name', d.name
+                    )
+                ) FROM drivers d WHERE d.enterprise_id = e.id),
+                '[]'::jsonb
+            ),
+            'managers', COALESCE(
+                (SELECT JSONB_AGG(
+                    JSONB_BUILD_OBJECT(
+                        'id', m.id,
+                        'fullName', m.full_name
+                    )
+                ) FROM manager_enterprises me
+                JOIN managers m ON me.manager_id = m.id
+                WHERE me.enterprise_id = e.id),
+                '[]'::jsonb
+            )
+        ) as TEXT
+    FROM enterprises e
+    WHERE e.id = :id
+    """, nativeQuery = true)
     String findEnterpriseFullJson(@Param("id") Integer id);
 
+
+    Optional<Enterprise> findByName(String name);
+    List<Enterprise> findByNameContaining(String name);
 }

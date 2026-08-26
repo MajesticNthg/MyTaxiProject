@@ -1,11 +1,18 @@
 package com.taxiproject.mytaxi.controller;
 
 import com.taxiproject.mytaxi.entity.Car;
+import com.taxiproject.mytaxi.Dto.CarRequestDto;
 import com.taxiproject.mytaxi.projection.CarWithBrandIdProjection;
 import com.taxiproject.mytaxi.service.CarService;
 import com.taxiproject.mytaxi.repository.CarRepository;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.data.domain.Page;
+
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 @RestController
@@ -32,4 +39,71 @@ public class CarRestController {
         }
         return car;
     }
+
+    @PostMapping
+    public ResponseEntity<Car> createCar(@Valid @RequestBody CarRequestDto request) {
+        Car car = new Car();
+        car.setLicensePlate(request.getLicensePlate());
+        car.setYearOfRelease(request.getYearOfRelease());
+        car.setCarMileage(request.getCarMileage());
+        car.setPrice(request.getPrice());
+
+        if (request.getBrandId() != null) {
+            car.setBrand(carService.getBrandById(request.getBrandId()));
+        }
+
+        if (request.getEnterpriseId() != null) {
+            car.setEnterprise(carService.getEnterpriseById(request.getEnterpriseId()));
+        }
+
+        carService.saveCar(car, request.getBrandId(), request.getEnterpriseId(), request.getDriverIds());
+        return ResponseEntity.status(HttpStatus.CREATED).body(car);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Map<String, Object>> updateCar(@PathVariable Integer id, @RequestBody CarRequestDto request) {
+        Car existingCar = carService.getCarById(id);
+
+        existingCar.setLicensePlate(request.getLicensePlate());
+        existingCar.setYearOfRelease(request.getYearOfRelease());
+        existingCar.setCarMileage(request.getCarMileage());
+        existingCar.setPrice(request.getPrice());
+
+        if (request.getBrandId() != null) {
+            existingCar.setBrand(carService.getBrandById(request.getBrandId()));
+        } else {
+            existingCar.setBrand(null);
+        }
+
+        if (request.getEnterpriseId() != null) {
+            existingCar.setEnterprise(carService.getEnterpriseById(request.getEnterpriseId()));
+        } else {
+            existingCar.setEnterprise(null);
+        }
+
+        carService.updateCar(existingCar, request.getBrandId(), request.getEnterpriseId(), request.getDriverIds(), request.getActiveDriverId());
+        return ResponseEntity.ok(Map.of("id", id, "message", "Машина успешно обновлена"));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteCar(@PathVariable Integer id) {
+        try {
+            carService.deleteCar(id);
+            return ResponseEntity.noContent().build();
+        } catch (RuntimeException e) {
+            String message = e.getMessage();
+            if (message != null && message.contains("активным водителем")) {
+                return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", message));
+            }
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", message));
+        }
+    }
+
+    @GetMapping("/paginated")
+    public ResponseEntity<Page<CarWithBrandIdProjection>> getCarPaginated (@RequestParam Integer enterpriseId, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size,
+                                                                           @RequestParam(defaultValue = "id") String sortBy, @RequestParam(defaultValue = "asc") String sortDirection) {
+        Page<CarWithBrandIdProjection> cars = carService.getCarsByEnterprisePaginated(enterpriseId, page, size, sortBy, sortDirection);
+        return ResponseEntity.ok(cars);
+    }
+
 }

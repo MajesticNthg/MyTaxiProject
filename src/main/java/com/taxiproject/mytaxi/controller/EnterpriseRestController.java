@@ -10,6 +10,8 @@ import com.taxiproject.mytaxi.projection.EnterpriseProjection;
 import com.taxiproject.mytaxi.repository.EnterpriseRepository;
 import com.taxiproject.mytaxi.service.EnterpriseService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -27,16 +29,36 @@ public class EnterpriseRestController {
 
     @GetMapping
     public List<EnterpriseProjection> getAllEnterprises() {
-        return enterpriseRepository.findAllEnterprisesProjection();
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        boolean isAdmin = auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
+        if (isAdmin) {
+            return enterpriseRepository.findAllEnterprisesProjection();
+        } else {
+            // Для USER — нужно отфильтровать предприятия
+            List<Enterprise> enterprises = enterpriseService.getEnterprisesForManager(username);
+            // Преобразуем в проекцию (придётся сделать вручную, так как проекция из репозитория)
+            return enterprises.stream()
+                    .map(this::convertToProjection)
+                    .collect(Collectors.toList());
+        }
     }
 
     @GetMapping("/{id}")
     public EnterpriseProjection getEnterpriseById(@PathVariable Integer id) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        enterpriseService.checkAccessToEnterprise(id, username);
         return enterpriseRepository.findEnterpriseByIdProjection(id);
     }
 
     @GetMapping("/withCarsAndDrivers/{id}")
     public EnterpriseWithCarsAndDriversDto getEnterpriseWithCarsAndDrivers(@PathVariable Integer id) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        enterpriseService.checkAccessToEnterprise(id, username);
+
         Enterprise enterprise = enterpriseService.getEnterpriseById(id);
         return convertToFullDto(enterprise);
     }
@@ -52,7 +74,7 @@ public class EnterpriseRestController {
                 driver.getName()
         )).collect(Collectors.toList());
 
-        return new EnterpriseWithCarsAndDriversDto (
+        return new EnterpriseWithCarsAndDriversDto(
                 enterprise.getId(),
                 enterprise.getName(),
                 enterprise.getCity(),
@@ -62,13 +84,10 @@ public class EnterpriseRestController {
         );
     }
 
-//    @GetMapping("/full-json/{id}")
-//    public String getEnterpriseFullJson(@PathVariable Integer id) {
-//        return enterpriseRepository.findEnterpriseFullJson(id);
-//    }
-
     @GetMapping(value = "/full-json/{id}", produces = "application/json")
     public ResponseEntity<String> getEnterpriseFullJson(@PathVariable Integer id) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        enterpriseService.checkAccessToEnterprise(id, username);
 
         String json = enterpriseRepository.findEnterpriseFullJson(id);
 
@@ -77,5 +96,38 @@ public class EnterpriseRestController {
         }
 
         return ResponseEntity.ok(json);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteEnterprise(@PathVariable Integer id) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        enterpriseService.checkAccessToEnterprise(id, username);
+        enterpriseService.deleteEnterprise(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    private EnterpriseProjection convertToProjection(Enterprise enterprise) {
+        return new EnterpriseProjection() {
+            @Override
+            public Integer getId() {
+                return enterprise.getId();
+            }
+
+            @Override
+            public String getName() {
+                return enterprise.getName();
+            }
+
+            @Override
+            public String getCity() {
+                return enterprise.getCity();
+            }
+
+            @Override
+            public Integer getEmployeeCount() {
+                return enterprise.getEmployeeCount();
+            }
+        };
+
     }
 }

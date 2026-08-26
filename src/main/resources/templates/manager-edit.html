@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Редактирование менеджера</title>
+    <style>
+        .container {
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-family: Arial, sans-serif;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: inline-block;
+            width: 120px;
+            font-weight: bold;
+        }
+        input {
+            padding: 8px;
+            width: 250px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+        .cancel {
+            margin-left: 10px;
+            padding: 10px 20px;
+            background-color: #ccc;
+            text-decoration: none;
+            color: black;
+            border-radius: 3px;
+        }
+        h1 {
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Редактирование менеджера</h1>
+
+    <form action="#" th:action="@{/managers/update/{id}(id=${manager.id})}"
+          th:object="${manager}"
+          method="post">
+
+        <div class="form-group">
+            <label>ID:</label>
+            <span class="readonly-id" th:text="${manager.id}">1</span>
+        </div>
+
+        <div class="form-group">
+            <label>Логин:</label>
+            <input type="text" th:field="*{username}" required>
+        </div>
+
+        <div class="form-group">
+            <label>Новый пароль:</label>
+            <input type="password" name="password">
+        </div>
+
+        <div class="form-group">
+            <label>ФИО:</label>
+            <input type="text" th:field="*{fullName}" required>
+        </div>
+
+        <div class="form-group">
+            <label>Email:</label>
+            <input type="email" th:field="*{email}" required>
+        </div>
+
+        <div class="form-group">
+            <label>Предприятия:</label>
+            <select name="enterpriseIds" multiple size="5">
+                <option th:each="enterprise : ${enterprises}"
+                        th:value="${enterprise.id}"
+                        th:text="${enterprise.name}"
+                        th:selected="${manager.enterprises != null and manager.enterprises.contains(enterprise)}">
+                </option>
+            </select>
+        </div>
+
+        <button type="submit">Сохранить изменения</button>
+        <a href="/managers" class="cancel">Отмена</a>
+    </form>
+</div>
+</body>
+</html>

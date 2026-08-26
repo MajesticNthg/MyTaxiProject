@@ -24,6 +24,10 @@ public class Enterprise {
     @OneToMany(mappedBy = "enterprise", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Driver> drivers = new ArrayList<>();
 
+    @ManyToMany (mappedBy = "enterprises")
+    private List<Manager> managers = new ArrayList<>();
+
+
     public Enterprise() {}
 
     public Enterprise(String name, String city, Integer employeeCount) {
@@ -78,5 +82,13 @@ public class Enterprise {
 
     public void setDrivers(List<Driver> drivers) {
         this.drivers = drivers;
+    }
+
+    public List<Manager> getManagers() {
+        return managers;
+    }
+
+    public void setManagers(List<Manager> managers) {
+        this.managers = managers;
     }
 }

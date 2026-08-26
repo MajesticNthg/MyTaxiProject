@@ -2,11 +2,14 @@ package com.taxiproject.mytaxi.repository;
 
 import com.taxiproject.mytaxi.entity.Car;
 import com.taxiproject.mytaxi.projection.CarWithBrandIdProjection;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.jpa.repository.query.JpqlQueryBuilder;
 import org.springframework.stereotype.Repository;
+import org.springframework.data.jpa.repository.Modifying;
 import java.util.List;
 
 @Repository
@@ -43,4 +46,31 @@ public interface CarRepository extends JpaRepository<Car, Integer> {
         WHERE c.id = :id
         """, nativeQuery = true)
     CarWithBrandIdProjection findCarByIdWithBrandId(@Param("id") Integer id);
+
+    @Modifying
+    @Query(value = "DELETE FROM car_drivers WHERE car_id = :carId", nativeQuery = true)
+    void deleteCarDriversByCarId(@Param("carId") Integer carId);
+
+    @Modifying
+    @Query(value = "DELETE FROM cars WHERE id = :carId", nativeQuery = true)
+    void deleteCarById(@Param("carId") Integer carId);
+
+    // новый метод
+    @Query(value = """
+    SELECT 
+        c.id as id,
+        c.license_plate as licensePlate,
+        c.year_of_release as yearOfRelease,
+        c.car_mileage as carMileage,
+        c.price as price,
+        c.brand_id as brandId,
+        c.active_driver_id as activeDriverId
+    FROM cars c
+    WHERE c.enterprise_id = :enterpriseId
+    """, nativeQuery = true)
+    Page<CarWithBrandIdProjection> findCarsByEnterpriseId(
+            @Param("enterpriseId") Integer enterpriseId,
+            Pageable pageable
+    );
+
     }

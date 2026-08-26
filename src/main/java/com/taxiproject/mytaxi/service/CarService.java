@@ -8,7 +8,14 @@ import com.taxiproject.mytaxi.repository.CarRepository;
 import com.taxiproject.mytaxi.repository.DriverRepository;
 import com.taxiproject.mytaxi.repository.BrandRepository;
 import com.taxiproject.mytaxi.repository.EnterpriseRepository;
+import com.taxiproject.mytaxi.projection.CarWithBrandIdProjection;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +33,11 @@ public class CarService {
         this.brandRepository = brandRepository;
         this.enterpriseRepository = enterpriseRepository;
         this.driverRepository = driverRepository;
+    }
+
+    public Page<Car> getCars(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return carRepository.findAll(pageable);
     }
 
     public List<Car> getAllCars() {
@@ -101,7 +113,52 @@ public class CarService {
         carRepository.save(car);
     }
 
+    @Transactional
     public void deleteCar(Integer Id) {
-        carRepository.deleteById(Id);
+        Car car = carRepository.findById(Id).orElseThrow(() -> new RuntimeException("Машина с ID " + Id + " не найдена"));
+//        if (!carRepository.existsById(Id)) {
+//            throw new RuntimeException("Машина с ID " + Id + " не найдена");
+//        }
+        if (car.getActiveDriver() != null) {
+            throw new RuntimeException("Нельзя удалить машину с активным водителем " + car.getActiveDriver().getId());
+        }
+
+        carRepository.deleteCarDriversByCarId(Id);
+        carRepository.deleteCarById(Id);
     }
+
+    public Brand getBrandById(Integer id) {
+        return brandRepository.findById(id).orElseThrow(() -> new RuntimeException("Бренд с ID " + id + " не найден"));
+    }
+
+    public Enterprise getEnterpriseById(Integer id) {
+        return enterpriseRepository.findById(id).orElseThrow(() -> new RuntimeException("Предприятия с ID " + id + " не найдено"));
+    }
+
+    public Page<CarWithBrandIdProjection> getCarsByEnterprisePaginated(Integer enterpriseId, int page, int size, String sortBy, String sortDirection) {
+        if (size > 100) {
+            size = 100;
+        }
+        if (size < 1) {
+            size = 20;
+        }
+
+        if (sortDirection == null || sortDirection.isEmpty()) {
+            sortDirection = "asc";
+        }
+        if (!sortDirection.equalsIgnoreCase("asc") && !sortDirection.equalsIgnoreCase("desc")) {
+            sortDirection = "asc";
+        }
+
+        Sort.Direction direction;
+        try {
+            direction = Sort.Direction.fromString(sortDirection);
+        } catch (IllegalArgumentException e) {
+            direction = Sort.Direction.ASC;
+        }
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
+        return carRepository.findCarsByEnterpriseId(enterpriseId, pageable);
+    }
+
 }

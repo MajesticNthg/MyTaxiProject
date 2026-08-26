@@ -92,6 +92,7 @@
             <th>Количество сотрудников</th>
             <th>Машины предриятия</th>
             <th>Водители предприятия</th>
+            <th>Менеджеры</th>
             <th>Действия</th>
         </tr>
         </thead>
@@ -105,6 +106,8 @@
                         #strings.listJoin(enterprise.cars.![id], ', ') : '—'}">—</td>
             <td th:text="${enterprise.drivers != null && !enterprise.drivers.isEmpty() ?
                         #strings.listJoin(enterprise.drivers.![id], ', ') : '—'}">—</td>
+            <td th:text="${enterprise.getManagers() != null && !enterprise.getManagers().isEmpty() ?
+                #strings.listJoin(enterprise.getManagers().![fullName], ', ') : '—'}">—</td>
             <td>
                 <a th:href="@{/enterprises/edit/{id}(id=${enterprise.id})}" class="edit-button">Изменить</a>
                 <a th:href="@{/enterprises/delete/{id}(id=${enterprise.id})}"

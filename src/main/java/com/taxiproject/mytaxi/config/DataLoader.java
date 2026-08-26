@@ -2,11 +2,16 @@ package com.taxiproject.mytaxi.config;
 
 import com.taxiproject.mytaxi.entity.Brand;
 import com.taxiproject.mytaxi.entity.Car;
+import com.taxiproject.mytaxi.entity.Driver;
 import com.taxiproject.mytaxi.entity.Enterprise;
+import com.taxiproject.mytaxi.entity.Manager;
 import com.taxiproject.mytaxi.repository.BrandRepository;
 import com.taxiproject.mytaxi.repository.CarRepository;
 import com.taxiproject.mytaxi.repository.EnterpriseRepository;
+import com.taxiproject.mytaxi.repository.ManagerRepository;
+import com.taxiproject.mytaxi.repository.DriverRepository;
 import com.taxiproject.mytaxi.service.EnterpriseService;
+import com.taxiproject.mytaxi.service.ManagerService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
@@ -20,10 +25,21 @@ public class DataLoader implements CommandLineRunner {
 
     private final EnterpriseRepository enterpriseRepository;
 
-    public DataLoader(CarRepository carRepository, BrandRepository brandRepository, EnterpriseRepository enterpriseRepository) {
+    private final ManagerRepository managerRepository;
+
+    private final ManagerService managerService;
+
+    private final DriverRepository driverRepository;
+
+    public static Integer TEST_ENTERPRISE_ID;
+
+    public DataLoader(CarRepository carRepository, BrandRepository brandRepository, EnterpriseRepository enterpriseRepository, ManagerRepository managerRepository, ManagerService managerService, DriverRepository driverRepository) {
         this.carRepository = carRepository;
         this.brandRepository = brandRepository;
         this.enterpriseRepository = enterpriseRepository;
+        this.managerRepository = managerRepository;
+        this.managerService = managerService;
+        this.driverRepository = driverRepository;
     }
 
     @Override
@@ -54,6 +70,28 @@ public class DataLoader implements CommandLineRunner {
             enterpriseRepository.save(TaxiYekaterinburg);
         }
 
+
+        Enterprise testEnterprise = enterpriseRepository.findByName("Тестовое предприятие")
+                .orElseGet(() -> enterpriseRepository.save(
+                        new Enterprise("Тестовое предприятие", "Тестовый город", 10)
+                ));
+//
+//        if (enterpriseRepository.findByName("Тестовое предприятие").isEmpty()) {
+//            System.out.println("создаем предприятие пустое");
+//            Enterprise testEnterprise = new Enterprise("Тестовое предприятие", "Тестовый город", 10);
+//            enterpriseRepository.save(testEnterprise);
+//            System.out.println("предприятие создано");
+//        } else {
+//            System.out.println("предприятие не создано (пустое)");
+//        }
+
+        if (driverRepository.count() == 0) {
+            Driver driver1 = new Driver("Иван Петров", 35, 80000);
+            Driver driver2 = new Driver("Сергей Сидоров", 40, 90000);
+            driverRepository.save(driver1);
+            driverRepository.save(driver2);
+        }
+
         if (carRepository.count() == 0) {
 
             Brand toyota = brandRepository.findByBrandName("Toyota").orElse(null);
@@ -80,5 +118,33 @@ public class DataLoader implements CommandLineRunner {
             carRepository.save(car2);
             carRepository.save(car3);
         }
+
+        if (managerRepository.findByUsername("DanilKhomenko").isEmpty()) {
+            Manager admin = new Manager ("DanilKhomenko", "", "Хоменко Данил Игоревич", "KhomenkoDI@mail.ru", "ROLE_ADMIN");
+            managerService.saveManager(admin, "admin123");
+        }
+
+        if (managerRepository.findByUsername("SergeyIvanov").isEmpty()) {
+            Manager user = new Manager ("SergeyIvanov", "", "Иванов Сергей Андреевич", "IvanovSI@mail.ru", "ROLE_USER");
+            managerService.saveManager(user, "user123");
+        }
+
+        if (managerRepository.findByUsername("TestManager1").isEmpty()) {
+            Manager manager1 = new Manager("TestManager1", "", "Тестовый Менеджер 1",
+                    "manager1@taxi.ru", "ROLE_ADMIN");
+            managerService.saveManager(manager1, "pass123");
+            testEnterprise.getManagers().add(manager1);
+        }
+
+        if (managerRepository.findByUsername("TestManager2").isEmpty()) {
+            Manager manager2 = new Manager("TestManager2", "", "Тестовый Менеджер 2",
+                    "manager2@taxi.ru", "ROLE_ADMIN");
+            managerService.saveManager(manager2, "pass123");
+        }
+
+
+        Manager manager1 = managerRepository.findByUsername("manager1").orElse(null);
+        Manager manager2 = managerRepository.findByUsername("manager2").orElse(null);
+
     }
 }
