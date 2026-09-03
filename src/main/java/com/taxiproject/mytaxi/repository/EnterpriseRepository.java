@@ -27,7 +27,8 @@ public interface EnterpriseRepository extends JpaRepository<Enterprise, Integer>
                 id,
                 name,
                 city,
-                employee_count as employeeCount
+                employee_count as employeeCount,
+                timezone
             FROM enterprises
             WHERE id = :id
             """, nativeQuery = true)

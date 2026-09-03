@@ -1,5 +1,6 @@
 package com.taxiproject.mytaxi.controller;
 
+import com.taxiproject.mytaxi.Dto.CarResponseDto;
 import com.taxiproject.mytaxi.entity.Car;
 import com.taxiproject.mytaxi.Dto.CarRequestDto;
 import com.taxiproject.mytaxi.projection.CarWithBrandIdProjection;
@@ -11,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Page;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -48,6 +51,10 @@ public class CarRestController {
         car.setCarMileage(request.getCarMileage());
         car.setPrice(request.getPrice());
 
+        if (request.getPurchaseDateTime() != null) {
+            car.setPurchaseDateTime(LocalDateTime.parse(request.getPurchaseDateTime(), DateTimeFormatter.ISO_DATE_TIME));
+        }
+
         if (request.getBrandId() != null) {
             car.setBrand(carService.getBrandById(request.getBrandId()));
         }
@@ -68,6 +75,12 @@ public class CarRestController {
         existingCar.setYearOfRelease(request.getYearOfRelease());
         existingCar.setCarMileage(request.getCarMileage());
         existingCar.setPrice(request.getPrice());
+
+        if (request.getPurchaseDateTime() != null) {
+            existingCar.setPurchaseDateTime(LocalDateTime.parse(request.getPurchaseDateTime(), DateTimeFormatter.ISO_DATE_TIME));
+        } else {
+            existingCar.setPurchaseDateTime(null);
+        }
 
         if (request.getBrandId() != null) {
             existingCar.setBrand(carService.getBrandById(request.getBrandId()));
@@ -100,9 +113,9 @@ public class CarRestController {
     }
 
     @GetMapping("/paginated")
-    public ResponseEntity<Page<CarWithBrandIdProjection>> getCarPaginated (@RequestParam Integer enterpriseId, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size,
-                                                                           @RequestParam(defaultValue = "id") String sortBy, @RequestParam(defaultValue = "asc") String sortDirection) {
-        Page<CarWithBrandIdProjection> cars = carService.getCarsByEnterprisePaginated(enterpriseId, page, size, sortBy, sortDirection);
+    public ResponseEntity<Page<CarResponseDto>> getCarPaginated (@RequestParam Integer enterpriseId, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size,
+                                                                 @RequestParam(defaultValue = "id") String sortBy, @RequestParam(defaultValue = "asc") String sortDirection) {
+        Page<CarResponseDto> cars = carService.getCarsByEnterprisePaginated(enterpriseId, page, size, sortBy, sortDirection);
         return ResponseEntity.ok(cars);
     }
 

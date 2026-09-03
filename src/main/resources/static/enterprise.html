@@ -70,7 +70,6 @@
 </head>
 <body>
 
-<!-- Навигация -->
 <nav class="navbar navbar-expand-lg navbar-custom">
     <div class="container">
         <a class="navbar-brand" href="/enterprises.html">
@@ -87,9 +86,7 @@
     </div>
 </nav>
 
-<!-- Основное содержимое -->
 <div class="container mt-4">
-    <!-- Заголовок -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h2 id="enterpriseName">Управление машинами</h2>
@@ -100,7 +97,35 @@
         </button>
     </div>
 
-    <!-- Таблица машин -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card card-enterprise p-3">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="flex-grow-1">
+                        <label for="timezone" class="form-label fw-bold mb-1">
+                            <i class="bi bi-clock"></i> Таймзона предприятия
+                        </label>
+                        <select class="form-select" id="timezone">
+                            <option value="UTC">UTC</option>
+                            <option value="Europe/Moscow">Москва (UTC+3)</option>
+                            <option value="Europe/Samara">Самара (UTC+4)</option>
+                            <option value="Asia/Yekaterinburg">Екатеринбург (UTC+5)</option>
+                            <option value="Asia/Krasnoyarsk">Красноярск (UTC+7)</option>
+                            <option value="Asia/Novosibirsk">Новосибирск (UTC+7)</option>
+                            <option value="Asia/Vladivostok">Владивосток (UTC+10)</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary mt-2" id="saveTimezoneBtn" style="white-space: nowrap;">
+                        <i class="bi bi-save"></i> Сохранить
+                    </button>
+                </div>
+                <div id="timezoneStatus" class="mt-2 text-muted small">
+                    Текущая таймзона: <span id="currentTimezoneDisplay">UTC</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="table-responsive">
         <table class="table table-custom table-hover">
             <thead>
@@ -111,16 +136,15 @@
                 <th>Пробег</th>
                 <th>Цена (₽)</th>
                 <th>Бренд</th>
+                <th>Дата покупки</th>
                 <th class="text-center">Действия</th>
             </tr>
             </thead>
             <tbody id="carsTableBody">
-            <!-- Машины будут добавлены через JS -->
             </tbody>
         </table>
     </div>
 
-    <!-- Пустое состояние -->
     <div id="emptyState" class="empty-state" style="display:none;">
         <i class="bi bi-car-front"></i>
         <h5>Нет машин</h5>
@@ -128,7 +152,6 @@
     </div>
 </div>
 
-<!-- Модальное окно для создания/редактирования машины -->
 <div class="modal fade" id="carModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -168,6 +191,11 @@
                     </div>
 
                     <div class="mb-3">
+                        <label for="purchaseDateTime" class="form-label">Дата покупки</label>
+                        <input type="datetime-local" class="form-control" id="purchaseDateTime">
+                    </div>
+
+                    <div class="mb-3">
                         <label for="activeDriverId" class="form-label">Активный водитель</label>
                         <select class="form-select" id="activeDriverId">
                             <option value="">Нет активного водителя</option>
@@ -183,7 +211,6 @@
     </div>
 </div>
 
-<!-- Модальное окно подтверждения удаления -->
 <div class="modal fade" id="deleteModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -271,9 +298,15 @@
             const enterpriseResponse = await fetchWithAuth(`${API_BASE}/api/enterprises/${enterpriseId}`);
             if (!enterpriseResponse) return;
             currentEnterprise = await enterpriseResponse.json();
-
+            console.log(currentEnterprise);
             document.getElementById('enterpriseName').textContent = currentEnterprise.name || 'Управление машинами';
             document.getElementById('enterpriseCity').textContent = currentEnterprise.city || '';
+
+            const timezone = currentEnterprise.timezone || 'UTC';
+            document.getElementById('timezone').value = timezone;
+            document.getElementById('currentTimezoneDisplay').textContent = timezone;
+            console.log('Loaded enterprise:', currentEnterprise);
+            console.log('Timezone from server:', currentEnterprise.timezone);
 
             const carsResponse = await fetchWithAuth(`${API_BASE}/api/cars/paginated?enterpriseId=${enterpriseId}&page=0&size=100`);
             if (!carsResponse) return;
@@ -286,6 +319,17 @@
         }
     }
 
+    async function loadCars() {
+    try {
+        const response = await fetchWithAuth(`${API_BASE}/api/cars/paginated?enterpriseId=${enterpriseId}&page=0&size=100`);
+        if (!response) return;
+        const carsData = await response.json();
+        renderCars(carsData.content || []);
+    } catch (error) {
+        console.error('Error loading cars:', error);
+    }
+}
+
     async function loadDrivers() {
     try {
         const response = await fetchWithAuth(`${API_BASE}/api/drivers?enterpriseId=${enterpriseId}`);
@@ -293,7 +337,6 @@
         const drivers = await response.json();
 
         const select = document.getElementById('activeDriverId');
-        // Очищаем список, оставляя только "Нет активного водителя"
         select.innerHTML = '<option value="">Нет активного водителя</option>';
 
         drivers.forEach(driver => {
@@ -301,6 +344,28 @@
         });
     } catch (error) {
         console.error('Error loading drivers:', error);
+    }
+}
+
+function formatLocalTime(utcTime, enterpriseTimezone) {
+    if (!utcTime) return '—';
+
+    try {
+        const date = new Date(utcTime + 'Z');
+
+        if (isNaN(date.getTime())) return '—';
+
+        return date.toLocaleString('ru-RU', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+        });
+    } catch (e) {
+        console.warn('Error formatting date:', utcTime, e);
+        return utcTime;
     }
 }
 
@@ -324,6 +389,7 @@
                 <td>${car.carMileage || '0'}</td>
                 <td>${car.price ? car.price.toLocaleString() : '—'}</td>
                 <td>${car.brandName || '—'}</td>
+                <td>${formatLocalTime(car.purchaseDateTime, currentEnterprise?.timezone || 'UTC')}</td>
                 <td class="text-center">
                     <button class="btn btn-warning btn-action edit-car" data-id="${car.id}">
                         <i class="bi bi-pencil"></i> Редактировать
@@ -354,6 +420,7 @@
         document.getElementById('carForm').reset();
         document.getElementById('carId').value = '';
         document.getElementById('activeDriverId').value = '';
+        document.getElementById('purchaseDateTime').value = '';
         carModal.show();
     });
 
@@ -373,6 +440,13 @@
             document.getElementById('brandId').value = car.brandId || '';
             document.getElementById('activeDriverId').value = car.activeDriverId || '';
 
+            if (car.purchaseDateTime) {
+            const date = new Date(car.purchaseDateTime + 'Z');
+            document.getElementById('purchaseDateTime').value = date.toISOString().slice(0, 16);
+        } else {
+            document.getElementById('purchaseDateTime').value = '';
+        }
+
             carModal.show();
         } catch (error) {
             console.error('Error loading car:', error);
@@ -388,6 +462,15 @@
         const brandId = parseInt(document.getElementById('brandId').value);
         const activeDriverId = document.getElementById('activeDriverId').value;
 
+        let purchaseDateTime = document.getElementById('purchaseDateTime').value;
+    if (purchaseDateTime) {
+        const date = new Date(purchaseDateTime);
+        purchaseDateTime = date.toISOString(); // Формат: 2024-01-15T10:30:00.000Z
+    } else {
+        purchaseDateTime = null;
+    }
+
+
         if (!licensePlate) {
             alert('Введите госномер');
             return;
@@ -401,7 +484,8 @@
             brandId,
             enterpriseId: parseInt(enterpriseId),
             driverIds: activeDriverId ? [parseInt(activeDriverId)] : [],
-            activeDriverId: activeDriverId ? parseInt(activeDriverId) : null
+            activeDriverId: activeDriverId ? parseInt(activeDriverId) : null,
+            purchaseDateTime: purchaseDateTime
         };
 
         try {
@@ -469,6 +553,39 @@ document.getElementById('confirmDeleteBtn').addEventListener('click', async () =
         localStorage.removeItem('token');
         window.location.href = '/login.html';
     });
+
+    document.getElementById('saveTimezoneBtn').addEventListener('click', async () => {
+    const timezone = document.getElementById('timezone').value;
+    console.log('Saving timezone:', timezone);
+
+    try {
+        const response = await fetchWithAuth(`${API_BASE}/api/enterprises/${enterpriseId}/timezone`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ timezone: timezone })
+        });
+
+        console.log('Response status:', response.status);
+        const data = await response.json();
+        console.log('Response data:', data);
+
+        if (response && response.ok) {
+            document.getElementById('currentTimezoneDisplay').textContent = timezone;
+            if (currentEnterprise) {
+                currentEnterprise.timezone = timezone;
+            }
+            await loadCars();
+            alert('Таймзона успешно обновлена');
+        } else {
+            alert('Ошибка при сохранении таймзоны: ' + (data.error || ''));
+        }
+    } catch (error) {
+        console.error('Error saving timezone:', error);
+        alert('Ошибка при сохранении таймзоны');
+    }
+});
 
     document.addEventListener('DOMContentLoaded', () => {
         const token = getToken();

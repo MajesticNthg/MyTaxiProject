@@ -18,6 +18,9 @@ public class Enterprise {
 
     private Integer employeeCount;
 
+    @Column(name = "timezone")
+    private String timezone;
+
     @OneToMany(mappedBy = "enterprise", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Car> cars = new ArrayList<>();
 
@@ -66,6 +69,14 @@ public class Enterprise {
 
     public void setEmployeeCount(Integer employeeCount) {
         this.employeeCount = employeeCount;
+    }
+
+    public String getTimezone() {
+        return timezone;
+    }
+
+    public void setTimezone (String timezone) {
+        this.timezone = timezone;
     }
 
     public List<Car> getCars() {

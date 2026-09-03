@@ -5,5 +5,6 @@ public interface EnterpriseProjection {
     String getName();
     String getCity();
     Integer getEmployeeCount();
+    String getTimezone();
 
 }

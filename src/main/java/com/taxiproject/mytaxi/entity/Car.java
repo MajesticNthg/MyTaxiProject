@@ -1,7 +1,10 @@
 package com.taxiproject.mytaxi.entity;
 
 import jakarta.persistence.*;
+import org.springframework.cglib.core.Local;
+
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,6 +24,9 @@ public class Car {
     private String carMileage;
 
     private Integer price;
+
+    @Column(name = "purchase_date_time")
+    private LocalDateTime purchaseDateTime;
 
     @ManyToOne
     @JoinColumn(name = "brand_id", nullable = false)
@@ -91,6 +97,14 @@ public class Car {
 
     public void setPrice (Integer Price) {
         this.price = Price;
+    }
+
+    public LocalDateTime getPurchaseDateTime () {
+        return purchaseDateTime;
+    }
+
+    public void setPurchaseDateTime(LocalDateTime purchaseDateTime) {
+        this.purchaseDateTime = purchaseDateTime;
     }
 
     public Brand getBrand() { return brand; }

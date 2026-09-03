@@ -1,5 +1,6 @@
 package com.taxiproject.mytaxi.service;
 
+import com.taxiproject.mytaxi.Dto.CarResponseDto;
 import com.taxiproject.mytaxi.entity.Car;
 import com.taxiproject.mytaxi.entity.Driver;
 import com.taxiproject.mytaxi.entity.Brand;
@@ -135,7 +136,7 @@ public class CarService {
         return enterpriseRepository.findById(id).orElseThrow(() -> new RuntimeException("Предприятия с ID " + id + " не найдено"));
     }
 
-    public Page<CarWithBrandIdProjection> getCarsByEnterprisePaginated(Integer enterpriseId, int page, int size, String sortBy, String sortDirection) {
+    public Page<CarResponseDto> getCarsByEnterprisePaginated(Integer enterpriseId, int page, int size, String sortBy, String sortDirection) {
         if (size > 100) {
             size = 100;
         }
@@ -158,7 +159,11 @@ public class CarService {
         }
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
-        return carRepository.findCarsByEnterpriseId(enterpriseId, pageable);
+        Page <Car> carPage = carRepository.findCarsByEnterpriseId(enterpriseId, pageable);
+        Enterprise enterprise = enterpriseRepository.findById(enterpriseId).orElseThrow(() -> new RuntimeException("Предприятие не найдено"));
+        String timezone = enterprise.getTimezone() != null ? enterprise.getTimezone() : "UTC";
+
+        return carPage.map(car -> new CarResponseDto(car, timezone));
     }
 
 }

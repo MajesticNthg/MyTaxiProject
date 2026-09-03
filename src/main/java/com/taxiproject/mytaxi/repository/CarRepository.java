@@ -56,20 +56,20 @@ public interface CarRepository extends JpaRepository<Car, Integer> {
     void deleteCarById(@Param("carId") Integer carId);
 
     // новый метод
-    @Query(value = """
-    SELECT 
-        c.id as id,
-        c.license_plate as licensePlate,
-        c.year_of_release as yearOfRelease,
-        c.car_mileage as carMileage,
-        c.price as price,
-        c.brand_id as brandId,
-        c.active_driver_id as activeDriverId
-    FROM cars c
-    WHERE c.enterprise_id = :enterpriseId
-    """, nativeQuery = true)
-    Page<CarWithBrandIdProjection> findCarsByEnterpriseId(
-            @Param("enterpriseId") Integer enterpriseId,
+//    @Query(value = """
+//    SELECT
+//        c.id as id,
+//        c.license_plate as licensePlate,
+//        c.year_of_release as yearOfRelease,
+//        c.car_mileage as carMileage,
+//        c.price as price,
+//        c.brand_id as brandId,
+//        c.active_driver_id as activeDriverId
+//    FROM cars c
+//    WHERE c.enterprise_id = :enterpriseId
+//    """, nativeQuery = true)
+    Page<Car> findCarsByEnterpriseId(
+             Integer enterpriseId,
             Pageable pageable
     );
 

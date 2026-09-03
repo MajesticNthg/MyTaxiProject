@@ -14,6 +14,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -127,7 +128,28 @@ public class EnterpriseRestController {
             public Integer getEmployeeCount() {
                 return enterprise.getEmployeeCount();
             }
+
+            @Override
+            public String getTimezone() {
+                return enterprise.getTimezone();
+            }
         };
 
+    }
+
+    @PutMapping("/{id}/timezone")
+    public ResponseEntity<?> updateTimezone(
+            @PathVariable Integer id,
+            @RequestBody Map<String, String> request
+    ) {
+        String timezone = request.get("timezone");
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        enterpriseService.checkAccessToEnterprise(id, username);
+
+        Enterprise enterprise = enterpriseService.getEnterpriseById(id);
+        enterprise.setTimezone(timezone);
+        enterpriseRepository.save(enterprise);
+
+        return ResponseEntity.ok(Map.of("message", "Таймзона обновлена"));
     }
 }

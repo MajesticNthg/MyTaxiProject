@@ -12,6 +12,7 @@ public class CarRequestDto {
     private Integer enterpriseId;
     private List<Integer> driverIds;
     private Integer activeDriverId;
+    private String purchaseDateTime;
 
     public String getLicensePlate() {
         return licensePlate;
@@ -75,5 +76,13 @@ public class CarRequestDto {
 
     public void setActiveDriverId(Integer activeDriverId) {
         this.activeDriverId = activeDriverId;
+    }
+
+    public String getPurchaseDateTime() {
+        return purchaseDateTime;
+    }
+
+    public void setPurchaseDateTime(String purchaseDateTime) {
+        this.purchaseDateTime = purchaseDateTime;
     }
 }
