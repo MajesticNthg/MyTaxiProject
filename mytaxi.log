@@ -5,3 +5,6 @@
 1782553130351:generate-cars --enterpriseId 2 --count 2
 1782996086168:generate-cars --enterpriseId 3 --count 40
 1782996095606:generate-cars --enterpriseId 2 --count 20
+1789285639935:help
+1789285769083:generate-track -c 1 --start-lat 55.7558 --start-lon 37.6173 --end-lat 55.7565 --end-lon 37.6190 -n 50 -i 5
+1789287214314:generate-track-in-city -c 1 --city Moscow -n 100 -i 10
