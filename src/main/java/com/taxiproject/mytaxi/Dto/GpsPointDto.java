@@ -4,6 +4,7 @@ import com.taxiproject.mytaxi.entity.GpsPoint;
 
 public class GpsPointDto {
     private Long id;
+    private Long tripId;
     private Double latitude;
     private Double longitude;
     private Double altitude;
@@ -13,8 +14,9 @@ public class GpsPointDto {
 
     public GpsPointDto() {}
 
-    public GpsPointDto(Long id, Double latitude, Double longitude, Double altitude, Double speed, Double heading, String timestamp) {
+    public GpsPointDto(Long id, Long tripId, Double latitude, Double longitude, Double altitude, Double speed, Double heading, String timestamp) {
         this.id = id;
+        this.tripId = tripId;
         this.latitude = latitude;
         this.longitude = longitude;
         this.altitude = altitude;
@@ -29,6 +31,14 @@ public class GpsPointDto {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Long getTripId() {
+        return tripId;
+    }
+
+    public void setTripId(Long tripId) {
+        this.tripId = tripId;
     }
 
     public Double getLatitude() {

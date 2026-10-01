@@ -78,7 +78,7 @@ public class GpsTrackGeneratorService {
             Profile carProfile = new Profile("car").setCustomModel(customModel);
 
             graphHopper.setProfiles(carProfile);
-            graphHopper.getCHPreparationHandler().setCHProfiles(new CHProfile("car"));help
+            graphHopper.getCHPreparationHandler().setCHProfiles(new CHProfile("car"));
             graphHopper.importOrLoad();
             System.out.println("GraphHopper инициализирован успешно");
         } catch (Exception e) {

@@ -40,7 +40,7 @@ public class GpsService {
 
         ZoneId enterpriseZone = ZoneId.of(enterpriseTimezone != null ? enterpriseTimezone : "UTC");
 
-        return points.stream().map(p -> convertToDto(p, enterpriseZone)).collect(Collectors.toList());
+        return points.stream().map(p -> convertToDto(p, enterpriseZone, null)).collect(Collectors.toList());
     }
 
     public Object getPointsAsGeoJson(Integer carId, LocalDateTime from, LocalDateTime to, String enterpriseTimezone, boolean asTrack) {
@@ -55,10 +55,11 @@ public class GpsService {
         }
     }
 
-    private GpsPointDto convertToDto(GpsPoint point, ZoneId zone) {
+    private GpsPointDto convertToDto(GpsPoint point, ZoneId zone, Long tripId) {
         ZonedDateTime zonedTime = point.getTimestamp().atZone(ZoneId.of("UTC")).withZoneSameInstant(zone);
         return new GpsPointDto(
                 point.getId(),
+                tripId,
                 point.getLatitude(),
                 point.getLongitude(),
                 point.getAltitude(),
