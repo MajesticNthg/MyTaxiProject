@@ -2,6 +2,7 @@ package com.taxiproject.mytaxi.service;
 
 import com.taxiproject.mytaxi.Dto.GeoJsonFeatureDto;
 import com.taxiproject.mytaxi.Dto.GpsPointDto;
+import com.taxiproject.mytaxi.Dto.TripListDto;
 import com.taxiproject.mytaxi.Dto.TripResponseDto;
 import com.taxiproject.mytaxi.entity.Car;
 import com.taxiproject.mytaxi.entity.Enterprise;
@@ -12,6 +13,7 @@ import com.taxiproject.mytaxi.repository.GpsPointRepository;
 import com.taxiproject.mytaxi.repository.TripRepository;
 import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
+import com.taxiproject.mytaxi.service.GeoapifyService;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -28,11 +30,13 @@ public class TripService {
     private final TripRepository tripRepository;
     private final GpsPointRepository gpsPointRepository;
     private final CarRepository carRepository;
+    private final GeoapifyService geoapifyService;
 
-    public TripService(TripRepository tripRepository, GpsPointRepository gpsPointRepository, CarRepository carRepository) {
+    public TripService(TripRepository tripRepository, GpsPointRepository gpsPointRepository, CarRepository carRepository, GeoapifyService geoapifyService) {
         this.tripRepository = tripRepository;
         this.gpsPointRepository = gpsPointRepository;
         this.carRepository = carRepository;
+        this.geoapifyService = geoapifyService;
     }
 
     public List<TripResponseDto> getTripWithPoints (Integer carId, LocalDateTime from, LocalDateTime to) {
@@ -75,33 +79,6 @@ public class TripService {
             result.addAll(tripIdOnDTO(points, zone, trip));
         }
 
-
-
-//        List<List<Double>> coordinates = allPoints.stream().map(p -> List.of(p.getLongitude(), p.getLatitude())).collect(Collectors.toList());
-//
-//        Map<String, Object> geometry = new HashMap<>();
-//        geometry.put("type", "LineString");
-//        geometry.put("coordinates", coordinates);
-//
-//        Map<String, Object> properties = new HashMap<>();
-//        properties.put("carId", carId);
-//        properties.put("tripCount", trips.size());
-//        properties.put("pointCount", allPoints.size());
-//
-//        if (!trips.isEmpty()) {
-//            ZonedDateTime fromZoned = trips.get(0).getStartTime().atZone(ZoneId.of("UTC")).withZoneSameInstant(zone);
-//            ZonedDateTime toZoned = trips.get(trips.size() - 1).getEndTime().atZone(ZoneId.of("UTC")).withZoneSameInstant(zone);
-//
-//            properties.put("from", fromZoned.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
-//            properties.put("to", toZoned.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
-//        }
-//
-//        Map<String, Object> feature = new HashMap<>();
-//        feature.put("type", "Feature");
-//        feature.put("geometry", geometry);
-//        feature.put("properties", properties);
-
-
         return result;
     }
 
@@ -129,5 +106,68 @@ public class TripService {
                 point.getHeading(),
                 zonedTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
         );
+    }
+
+    public List<TripListDto> getTripList(Integer carId, LocalDateTime from, LocalDateTime to) {
+        System.out.println("🔍 Запрос поездок: carId=" + carId + ", from=" + from + ", to=" + to);
+        Car car = carRepository.findById(carId).orElseThrow(() -> new RuntimeException("Машина не найдена"));
+
+        Enterprise enterprise = car.getEnterprise();
+        ZoneId zone = ZoneId.of(enterprise.getTimezone() != null ? enterprise.getTimezone() : "UTC");
+
+        List<Trip> trips = tripRepository.findByCarAndPeriod(carId, from, to);
+        System.out.println("📋 Найдено поездок в репозитории: " + trips.size());
+        List<TripListDto> result = new ArrayList<>();
+
+        List<double[]> coordinates = new ArrayList<>();
+        List<int[]> tripIndexes = new ArrayList<>();
+
+        for (int i = 0; i < trips.size(); i++) {
+            Trip trip = trips.get(i);
+
+            List<GpsPoint> points = gpsPointRepository.findByCarIdAndTimestampBetweenOrderByTimestampAsc(carId, trip.getStartTime(), trip.getEndTime());
+
+            if (!points.isEmpty()) {
+                GpsPoint startPoint = points.get(0);
+                GpsPoint endPoint = points.get(points.size() - 1);
+
+                coordinates.add(new double[]{startPoint.getLatitude(), startPoint.getLongitude()});
+                tripIndexes.add(new int[]{i, 0});
+
+                coordinates.add(new double[]{endPoint.getLatitude(), endPoint.getLongitude()});
+                tripIndexes.add(new int[]{i, 1});
+            }
+        }
+
+        Map<String, String> addresses = geoapifyService.reverseGeocodeBatch(coordinates);
+
+        for (int i = 0; i < trips.size(); i++) {
+            Trip trip = trips.get(i);
+
+            List<GpsPoint> points = gpsPointRepository.findByCarIdAndTimestampBetweenOrderByTimestampAsc(carId, trip.getStartTime(), trip.getEndTime());
+
+            if (points.isEmpty()) {
+                continue;
+            }
+
+            GpsPoint startPoint = points.get(0);
+            GpsPoint endPoint = points.get(points.size() - 1);
+
+            TripListDto dto = new TripListDto();
+            dto.setTripId(trip.getId());
+            dto.setCarId(car.getId());
+            dto.setStartTime(formatInZone(trip.getStartTime(), zone));
+            dto.setEndTime(formatInZone(trip.getEndTime(), zone));
+            dto.setStartLat(startPoint.getLatitude());
+            dto.setStartLon(startPoint.getLongitude());
+            dto.setStartAddress(addresses.getOrDefault(String.valueOf(i * 2), "Адрес не найден"));
+            dto.setEndLat(endPoint.getLatitude());
+            dto.setEndLon(endPoint.getLongitude());
+            dto.setEndAddress(addresses.getOrDefault(String.valueOf(i * 2 + 1), "Адрес не найден"));
+
+            result.add(dto);
+        }
+
+        return result;
     }
 }

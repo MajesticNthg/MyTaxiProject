@@ -1,6 +1,7 @@
 package com.taxiproject.mytaxi.controller;
 
 import com.taxiproject.mytaxi.Dto.GpsPointDto;
+import com.taxiproject.mytaxi.Dto.TripListDto;
 import com.taxiproject.mytaxi.Dto.TripResponseDto;
 import com.taxiproject.mytaxi.service.TripService;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -37,5 +38,13 @@ public class TripController {
     ) {
         List<GpsPointDto> points = tripService.getTripAsSingleTrack(carId, from, to);
         return ResponseEntity.ok(points);
+    }
+
+    @GetMapping("/list")
+    public ResponseEntity<List<TripListDto>> getTripList (@RequestParam Integer carId,
+                                                          @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from,
+                                                          @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime to) {
+        List<TripListDto> trips = tripService.getTripList(carId, from, to);
+        return ResponseEntity.ok(trips);
     }
 }

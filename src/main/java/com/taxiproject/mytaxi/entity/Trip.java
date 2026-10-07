@@ -24,6 +24,12 @@ public class Trip {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
+    @Column(name = "start_address")
+    private String startAddress;
+
+    @Column(name = "end_address")
+    private String endAddress;
+
     public Trip() {}
 
     public Trip (Car car, LocalDateTime startTime, LocalDateTime endTime) {
@@ -71,5 +77,21 @@ public class Trip {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public String getStartAddress() {
+        return startAddress;
+    }
+
+    public void setStartAddress(String startAddress) {
+        this.startAddress = startAddress;
+    }
+
+    public String getEndAddress() {
+        return endAddress;
+    }
+
+    public void setEndAddress(String endAddress) {
+        this.endAddress = endAddress;
     }
 }
