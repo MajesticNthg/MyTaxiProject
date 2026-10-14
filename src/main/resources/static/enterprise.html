@@ -391,6 +391,9 @@ function formatLocalTime(utcTime, enterpriseTimezone) {
                 <td>${car.brandName || '—'}</td>
                 <td>${formatLocalTime(car.purchaseDateTime, currentEnterprise?.timezone || 'UTC')}</td>
                 <td class="text-center">
+                    <button class="btn btn-outline-primary btn-action" onclick="viewCar(${car.id})">
+                        <i class="bi bi-eye"></i> Подробнее
+                    </button>
                     <button class="btn btn-warning btn-action edit-car" data-id="${car.id}">
                         <i class="bi bi-pencil"></i> Редактировать
                     </button>
@@ -451,6 +454,10 @@ function formatLocalTime(utcTime, enterpriseTimezone) {
         } catch (error) {
             console.error('Error loading car:', error);
         }
+    }
+
+    function viewCar(carId) {
+        window.location.href = `/car.html?carId=${carId}&id=${enterpriseId}`;
     }
 
     document.getElementById('saveCarBtn').addEventListener('click', async () => {
