@@ -7,8 +7,12 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+
 import java.util.*;
 import java.util.stream.Collectors;
+import org.springframework.web.util.UriComponentsBuilder;
 
 @Service
 public class GeoapifyService {
@@ -28,19 +32,6 @@ public class GeoapifyService {
                 inputs.add(List.of(coord[1], coord[0]));
             }
 
-//            List<Map<String, Object>> inputs = new ArrayList<>();
-//            for (int i = 0; i < coordinates.size(); i++) {
-//                double[] coord = coordinates.get(i);
-//                Map<String, Object> input = new HashMap<>();
-//                input.put("id", String.valueOf(i));
-//                input.put("params", Map.of("lat", coord[0], "lon", coord[i]));
-//                inputs.add(input);
-//            }
-//
-//            Map<String, Object> body = new HashMap<>();
-//            body.put("api", "v1/geocode/reverse");
-//            body.put("inputs", inputs);
-
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             HttpEntity<List<List<Double>>> request = new HttpEntity<>(inputs, headers);
@@ -50,13 +41,13 @@ public class GeoapifyService {
             ResponseEntity<String> createResponse = restTemplate.postForEntity(createUrl, request, String.class);
 
             if (createResponse.getStatusCode() != HttpStatus.ACCEPTED) {
-                System.err.println("❌ Geoapify: не удалось создать задачу. Статус: " + createResponse.getStatusCode());
+                System.err.println("Geoapify: не удалось создать задачу. Статус: " + createResponse.getStatusCode());
                 return results;
             }
 
             JsonNode createJson = objectMapper.readTree(createResponse.getBody());
             String jobId = createJson.get("id").asText();
-            System.out.println("✅ Задача создана, jobId: " + jobId);
+            System.out.println("Задача создана, jobId: " + jobId);
 
             String resultUrl = "https://api.geoapify.com/v1/batch?id=" + jobId + "&apiKey=" + apiKey;
 
@@ -68,9 +59,9 @@ public class GeoapifyService {
                         System.out.println("Geoapify result: " + resultResponse.getBody().substring(0, Math.min(200, resultResponse.getBody().length())));
                         return parseBatchResult(resultResponse.getBody());
                     } else if (resultResponse.getStatusCode() == HttpStatus.ACCEPTED) {
-                        System.out.println("⏳ Задача ещё выполняется, попытка " + (attempt + 1));
+                        System.out.println("Задача ещё выполняется, попытка " + (attempt + 1));
                 } else {
-                        System.err.println("❌ Ошибка при получении результата: " + resultResponse.getStatusCode());
+                        System.err.println("Ошибка при получении результата: " + resultResponse.getStatusCode());
                         break;
                     }
             }
@@ -105,9 +96,40 @@ public class GeoapifyService {
                 results.put(String.valueOf(i), "Адрес не найден");
             }
         } else {
-            System.err.println("❌ Geoapify: поле 'results' не найдено или не является массивом");
+            System.err.println("Geoapify: поле 'results' не найдено или не является массивом");
         }
 
         return results;
+    }
+
+    public double[] geocodeAddress(String address) {
+        try {
+            String url = UriComponentsBuilder
+                    .fromUriString("https://api.geoapify.com/v1/geocode/search")
+                    .queryParam("text", address)
+                    .queryParam("lang", "ru")
+                    .queryParam("limit", "1")
+                    .queryParam("apiKey", apiKey)
+                    .build()
+                    .toUriString();
+
+            System.out.println("Geoapify geocode URL: " + url);
+
+            ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
+            JsonNode root = objectMapper.readTree(response.getBody());
+            JsonNode features = root.get("features");
+
+            if (features != null && features.size() > 0) {
+                JsonNode geometry = features.get(0).get("geometry");
+                JsonNode coordinates = geometry.get("coordinates");
+                return new double[]{
+                        coordinates.get(1).asDouble(),
+                        coordinates.get(0).asDouble()
+                };
+            }
+        } catch (Exception e) {
+            System.err.println("Geocode error: " + e.getMessage());
+        }
+        return null;
     }
 }

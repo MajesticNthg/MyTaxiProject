@@ -10,6 +10,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import java.util.UUID;
 
 
 @Controller
@@ -46,13 +47,13 @@ public class CarController {
     }
 
     @PostMapping("save")
-    public String saveCar (@ModelAttribute Car car, @RequestParam Integer brandId, @RequestParam Integer enterpriseId, @RequestParam(required = false) List<Integer> driverIds) {
+    public String saveCar (@ModelAttribute Car car, @RequestParam UUID brandId, @RequestParam UUID enterpriseId, @RequestParam(required = false) List<UUID> driverIds) {
         carService.saveCar(car, brandId, enterpriseId, driverIds);
         return "redirect:/cars";
     }
 
     @GetMapping("/edit/{id}")
-    public String showEditForm(@PathVariable Integer id, Model model) {
+    public String showEditForm(@PathVariable UUID id, Model model) {
         Car car = carService.getCarById(id);
         model.addAttribute("car", car);
         model.addAttribute("brands", brandService.getAllBrands());
@@ -62,14 +63,14 @@ public class CarController {
     }
 
     @PostMapping("/update/{id}")
-    public String updateCar(@PathVariable Integer id, @ModelAttribute Car car, @RequestParam Integer brandId, @RequestParam Integer enterpriseId, @RequestParam(required = false) List<Integer> driverIds, @RequestParam(required = false) Integer activeDriverId) {
+    public String updateCar(@PathVariable UUID id, @ModelAttribute Car car, @RequestParam UUID brandId, @RequestParam UUID enterpriseId, @RequestParam(required = false) List<UUID> driverIds, @RequestParam(required = false) UUID activeDriverId) {
         car.setId(id);
         carService.updateCar(car, brandId, enterpriseId, driverIds, activeDriverId);
         return "redirect:/cars";
     }
 
     @GetMapping("delete/{id}")
-    public String deleteCar(@PathVariable Integer id){
+    public String deleteCar(@PathVariable UUID id){
         carService.deleteCar(id);
         return "redirect:/cars";
     }

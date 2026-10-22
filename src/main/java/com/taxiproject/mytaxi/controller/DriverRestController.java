@@ -6,6 +6,7 @@ import com.taxiproject.mytaxi.repository.DriverRepository;
 import com.taxiproject.mytaxi.service.DriverService;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/drivers")
@@ -24,7 +25,7 @@ public class DriverRestController {
     }
 
     @GetMapping("/{id}")
-    public DriversIdProjection getDriverById(@PathVariable Integer id) {
+    public DriversIdProjection getDriverById(@PathVariable UUID id) {
         return driverRepository.findDriverByIdWithEnterpriseId(id);
     }
 }

@@ -1,9 +1,11 @@
 package com.taxiproject.mytaxi.projection;
 
+import java.util.UUID;
+
 public interface DriversIdProjection {
-    Integer getId();
+    UUID getId();
     String getName();
     Integer getAge();
     Integer getSalary();
-    Long getEnterpriseId();
+    UUID getEnterpriseId();
 }

@@ -8,9 +8,10 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Repository
-public interface TripRepository extends JpaRepository<Trip, Long> {
+public interface TripRepository extends JpaRepository<Trip, UUID> {
 
     @Query("""
         SELECT t FROM Trip t
@@ -20,7 +21,7 @@ public interface TripRepository extends JpaRepository<Trip, Long> {
         ORDER BY t.startTime ASC
         """)
     List<Trip> findByCarAndPeriod(
-            @Param("carId") Integer carId,
+            @Param("carId") UUID carId,
             @Param("from") LocalDateTime from,
             @Param("to") LocalDateTime to
     );

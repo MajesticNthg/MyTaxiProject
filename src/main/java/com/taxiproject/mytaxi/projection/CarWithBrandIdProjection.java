@@ -1,11 +1,13 @@
 package com.taxiproject.mytaxi.projection;
 
+import java.util.UUID;
+
 public interface CarWithBrandIdProjection {
-    Integer getId();
+    UUID getId();
     String getLicensePlate();
     Integer getYearOfRelease();
     Integer getCarMileage();
     Integer getPrice();
-    Long getBrandId();
-    Integer getActiveDriverId();
+    UUID getBrandId();
+    UUID getActiveDriverId();
 }

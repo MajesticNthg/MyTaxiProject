@@ -9,9 +9,10 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 import java.util.List;
+import java.util.UUID;
 
 @Repository
-public interface EnterpriseRepository extends JpaRepository<Enterprise, Integer> {
+public interface EnterpriseRepository extends JpaRepository<Enterprise, UUID> {
     @Query(value = """
             SELECT 
                 id,
@@ -32,7 +33,7 @@ public interface EnterpriseRepository extends JpaRepository<Enterprise, Integer>
             FROM enterprises
             WHERE id = :id
             """, nativeQuery = true)
-    EnterpriseProjection findEnterpriseByIdProjection(@Param("id") Integer id);
+    EnterpriseProjection findEnterpriseByIdProjection(@Param("id") UUID id);
 
     @Query(value = """
     SELECT
@@ -74,7 +75,7 @@ public interface EnterpriseRepository extends JpaRepository<Enterprise, Integer>
     FROM enterprises e
     WHERE e.id = :id
     """, nativeQuery = true)
-    String findEnterpriseFullJson(@Param("id") Integer id);
+    String findEnterpriseFullJson(@Param("id") UUID id);
 
 
     Optional<Enterprise> findByName(String name);

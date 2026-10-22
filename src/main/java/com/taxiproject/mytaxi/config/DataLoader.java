@@ -15,6 +15,7 @@ import com.taxiproject.mytaxi.service.ManagerService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
+import java.util.UUID;
 
 @Component
 public class DataLoader implements CommandLineRunner {
@@ -31,7 +32,7 @@ public class DataLoader implements CommandLineRunner {
 
     private final DriverRepository driverRepository;
 
-    public static Integer TEST_ENTERPRISE_ID;
+    public static UUID TEST_ENTERPRISE_ID;
 
     public DataLoader(CarRepository carRepository, BrandRepository brandRepository, EnterpriseRepository enterpriseRepository, ManagerRepository managerRepository, ManagerService managerService, DriverRepository driverRepository) {
         this.carRepository = carRepository;
@@ -63,7 +64,7 @@ public class DataLoader implements CommandLineRunner {
         if (enterpriseRepository.count() == 0) {
             Enterprise TaxiMoscow = new Enterprise("Такси Москва", "Москва", 150);
             Enterprise TaxiSaintPetersburg = new Enterprise("Такси Санкт-Петербург", "Санкт-Петербург", 120);
-            Enterprise TaxiYekaterinburg = new Enterprise("Такси Екатерингбург", "Екатеринбург", 90);
+            Enterprise TaxiYekaterinburg = new Enterprise("Такси Екатеринбург", "Екатеринбург", 90);
 
             enterpriseRepository.save(TaxiMoscow);
             enterpriseRepository.save(TaxiSaintPetersburg);
@@ -75,15 +76,6 @@ public class DataLoader implements CommandLineRunner {
                 .orElseGet(() -> enterpriseRepository.save(
                         new Enterprise("Тестовое предприятие", "Тестовый город", 10)
                 ));
-//
-//        if (enterpriseRepository.findByName("Тестовое предприятие").isEmpty()) {
-//            System.out.println("создаем предприятие пустое");
-//            Enterprise testEnterprise = new Enterprise("Тестовое предприятие", "Тестовый город", 10);
-//            enterpriseRepository.save(testEnterprise);
-//            System.out.println("предприятие создано");
-//        } else {
-//            System.out.println("предприятие не создано (пустое)");
-//        }
 
         if (driverRepository.count() == 0) {
             Driver driver1 = new Driver("Иван Петров", 35, 80000);
@@ -98,9 +90,12 @@ public class DataLoader implements CommandLineRunner {
             Brand nissan = brandRepository.findByBrandName("Nissan").orElse(null);
             Brand honda = brandRepository.findByBrandName("Honda").orElse(null);
 
-            Enterprise taxiMoscow = enterpriseRepository.findById(1).orElse(null);
-            Enterprise taxiSaintPetersburg = enterpriseRepository.findById(2).orElse(null);
-            Enterprise taxiYekaterinburg = enterpriseRepository.findById(3).orElse(null);
+            Enterprise taxiMoscow = enterpriseRepository.findByName("Такси Москва")
+                    .orElseThrow(() -> new RuntimeException("Такси Москва не найдено"));
+            Enterprise taxiSaintPetersburg = enterpriseRepository.findByName("Такси Санкт-Петербург")
+                    .orElseThrow(() -> new RuntimeException("Такси СПб не найдено"));
+            Enterprise taxiYekaterinburg = enterpriseRepository.findByName("Такси Екатеринбург")
+                    .orElseThrow(() -> new RuntimeException("Такси Екатеринбург не найдено"));
 
             Car car1 = new Car(
                     "A123BC", "1994", "276322", 393000, toyota, taxiMoscow
@@ -143,8 +138,8 @@ public class DataLoader implements CommandLineRunner {
         }
 
 
-        Manager manager1 = managerRepository.findByUsername("manager1").orElse(null);
-        Manager manager2 = managerRepository.findByUsername("manager2").orElse(null);
+        Manager manager1 = managerRepository.findByUsername("TestManager1").orElse(null);
+        Manager manager2 = managerRepository.findByUsername("TestManager2").orElse(null);
 
     }
 }

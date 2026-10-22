@@ -5,6 +5,8 @@ import org.springframework.shell.core.command.annotation.Command;
 import org.springframework.shell.core.command.annotation.Option;
 import org.springframework.stereotype.Component;
 
+import java.util.UUID;
+
 @Component
 public class ShellCommands {
 
@@ -25,7 +27,7 @@ public class ShellCommands {
     )
     public String generateCars(
             @Option(shortName = 'e', longName = "enterpriseId", description = "ID предприятия", required = true)
-            Integer enterpriseId,
+            UUID enterpriseId,
             @Option(shortName = 'c', longName = "count", description = "Количество машин", defaultValue = "10")
             int count
     ) {

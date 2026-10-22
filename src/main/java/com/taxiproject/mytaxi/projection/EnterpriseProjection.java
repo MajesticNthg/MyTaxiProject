@@ -1,7 +1,9 @@
 package com.taxiproject.mytaxi.projection;
 
+import java.util.UUID;
+
 public interface EnterpriseProjection {
-    Integer getId();
+    UUID getId();
     String getName();
     String getCity();
     Integer getEmployeeCount();

@@ -59,9 +59,14 @@ public class SecurityConfig {
                         .requestMatchers("/login", "/login.html", "/enterprises.html", "/enterprise.html", "/car.html", "/css/**", "/js/**").permitAll()
                         .requestMatchers("/api/auth/login").permitAll()
 
+                        .requestMatchers("/api/export-import/**").hasRole("ADMIN")
+
                         .requestMatchers(HttpMethod.POST, "/api/cars").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/cars/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/cars/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/enterprises").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/enterprises/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/enterprises/**").hasRole("ADMIN")
 
                         .requestMatchers(HttpMethod.GET, "/api/cars/**").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/brands/**").authenticated()
@@ -72,7 +77,6 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/api/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/**").hasRole("ADMIN")
 
-//                        .requestMatchers("/api/**").authenticated()
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(ex -> ex

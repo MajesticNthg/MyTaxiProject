@@ -6,6 +6,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @Controller
 @RequestMapping("/brands")
 public class BrandController {
@@ -35,21 +37,21 @@ public class BrandController {
     }
 
     @GetMapping("/edit/{id}")
-    public String showEditForm(@PathVariable Integer id, Model model) {
+    public String showEditForm(@PathVariable UUID id, Model model) {
         Brand brand = brandService.getBrandById(id);
         model.addAttribute("brand", brand);
         return "brand-edit";
     }
 
     @PostMapping("/update/{id}")
-    public String updateBrand(@PathVariable Integer id, @ModelAttribute Brand brand) {
+    public String updateBrand(@PathVariable UUID id, @ModelAttribute Brand brand) {
         brand.setId(id);
         brandService.updateBrand(brand);
         return "redirect:/brands";
     }
 
     @GetMapping("delete/{id}")
-    public String deleteBrand(@PathVariable Integer id) {
+    public String deleteBrand(@PathVariable UUID id) {
         brandService.deleteBrand(id);
         return "redirect:/brands";
     }

@@ -7,6 +7,7 @@ import org.springframework.shell.core.command.annotation.Option;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.UUID;
 
 @Component
 public class GpsCommands {
@@ -20,7 +21,7 @@ public class GpsCommands {
     @Command(name = "generate-track", description = "Генерирует трек для автомобиля по дорогам между двумя точками", group = "MyTaxi", help = """
            Генерирует трек по дорогам через GraphHopper, пример - generate-track -c 1 --start-lat 55.7558 --start-lon 37.6173 --end-lat 55.7565 --end.lon 37.6190 -n 50 -i 5
            """)
-    public String generateTrack(@Option(shortName = 'c', longName = "carId", description = "ID автомобиля", required = true) Integer carId,
+    public String generateTrack(@Option(shortName = 'c', longName = "carId", description = "ID автомобиля", required = true) UUID carId,
                                 @Option(longName = "start-lat", description = "Начальная широта", required = true) double startLat,
                                 @Option(longName = "start-lon", description = "Начальная долгота", required = true) double startLon,
                                 @Option(longName = "end-lat", description = "Конечная широта", required = true) double endLat,
@@ -41,7 +42,7 @@ public class GpsCommands {
     Генерирует случайный трек внутри города. Пример: generate-track-in-city -c 1 --city Moscow -n 100 -i 10
 """)
     public String generateTrackInCity(
-            @Option(shortName = 'c', longName = "carId", description = "ID автомобиля", required = true) Integer carId,
+            @Option(shortName = 'c', longName = "carId", description = "ID автомобиля", required = true) UUID carId,
             @Option(longName = "city", description = "Город", defaultValue = "Moscow") String city,
             @Option(shortName = 'n', longName = "points", description = "Количество точек", defaultValue = "100") int pointsCount,
             @Option(shortName = 'i', longName = "interval", description = "Интервал между точками (сек)", defaultValue = "10") int intervalSeconds) {

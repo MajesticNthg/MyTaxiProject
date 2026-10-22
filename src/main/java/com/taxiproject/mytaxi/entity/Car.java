@@ -7,14 +7,15 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Table(name = "cars")
 public class Car {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
     @Column (unique = true, nullable = false)
     private String licensePlate;
@@ -29,11 +30,11 @@ public class Car {
     private LocalDateTime purchaseDateTime;
 
     @ManyToOne
-    @JoinColumn(name = "brand_id", nullable = false)
+    @JoinColumn(name = "brand_id", columnDefinition = "UUID", nullable = false)
     private Brand brand;
 
     @ManyToOne
-    @JoinColumn(name = "enterprise_id", nullable = false)
+    @JoinColumn(name = "enterprise_id", columnDefinition = "UUID", nullable = false)
     private Enterprise enterprise;
 
     @ManyToMany
@@ -45,7 +46,7 @@ public class Car {
     private List<Driver> drivers = new ArrayList<>();
 
     @ManyToOne
-    @JoinColumn(name = "active_driver_id")
+    @JoinColumn(name = "active_driver_id", columnDefinition = "UUID")
     private Driver activeDriver;
 
     public Car() {}
@@ -59,11 +60,11 @@ public class Car {
         this.enterprise = enterprise;
     }
 
-    public Integer getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 

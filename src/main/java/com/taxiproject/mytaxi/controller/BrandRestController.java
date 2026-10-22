@@ -5,6 +5,7 @@ import com.taxiproject.mytaxi.repository.BrandRepository;
 import com.taxiproject.mytaxi.service.BrandService;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/brands")
@@ -23,7 +24,7 @@ public class BrandRestController {
     }
 
     @GetMapping("/{id}")
-    public Brand getBrandById(@PathVariable Integer id) {
+    public Brand getBrandById(@PathVariable UUID id) {
         return brandRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Бренд с ID " + id + " не найден"));
     }

@@ -1,10 +1,11 @@
 package com.taxiproject.mytaxi.Dto;
 
 import java.util.List;
+import java.util.UUID;
 
 public class TripListDto {
-    private Long tripId;
-    private Integer carId;
+    private UUID tripId;
+    private UUID carId;
     private String startTime;
     private String endTime;
     private Double startLat;
@@ -16,7 +17,7 @@ public class TripListDto {
 
     public TripListDto() {}
 
-    public TripListDto (Long tripId, Integer carId, String startTime, String endTime, Double startLat, Double startLon, String startAddress, Double endLat, Double endLon, String endAddress) {
+    public TripListDto (UUID tripId, UUID carId, String startTime, String endTime, Double startLat, Double startLon, String startAddress, Double endLat, Double endLon, String endAddress) {
         this.tripId = tripId;
         this.carId = carId;
         this.startTime = startTime;
@@ -29,19 +30,19 @@ public class TripListDto {
         this.endAddress = endAddress;
     }
 
-    public Long getTripId() {
+    public UUID getTripId() {
         return tripId;
     }
 
-    public void setTripId(Long tripId) {
+    public void setTripId(UUID tripId) {
         this.tripId = tripId;
     }
 
-    public Integer getCarId() {
+    public UUID getCarId() {
         return carId;
     }
 
-    public void setCarId(Integer carId) {
+    public void setCarId(UUID carId) {
         this.carId = carId;
     }
 

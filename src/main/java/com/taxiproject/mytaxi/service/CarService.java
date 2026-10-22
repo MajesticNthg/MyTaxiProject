@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class CarService {
@@ -45,7 +46,7 @@ public class CarService {
         return carRepository.findAll();
     }
 
-    public Car getCarById(Integer id) {
+    public Car getCarById(UUID id) {
         Car car = carRepository.findById(id).orElse(null);
         if (car == null) {
             throw new RuntimeException("Машина с ID" + id + " не найдена");
@@ -53,7 +54,7 @@ public class CarService {
         return car;
     }
 
-    public void saveCar (Car car, Integer brandId, Integer enterpriseId, List<Integer> driversIds) {
+    public void saveCar (Car car, UUID brandId, UUID enterpriseId, List<UUID> driversIds) {
         Brand brand = brandRepository.findById(brandId).orElse(null);
         if (brand == null) {
             throw new RuntimeException("Бренд не найден");
@@ -66,17 +67,10 @@ public class CarService {
         }
         car.setEnterprise(enterprise);
 
-//        if (driversIds != null && !driversIds.isEmpty()) {
-//            List<Driver> drivers = driverRepository.findAllByIdIn(driversIds);
-//            car.setDrivers(drivers);
-//        } else {
-//            car.setDrivers(new ArrayList<>());
-//        }
-
         carRepository.save(car);
     }
 
-    public void updateCar(Car car, Integer brandId, Integer enterpriseId, List<Integer> driverIds, Integer activeDriverId) {
+    public void updateCar(Car car, UUID brandId, UUID enterpriseId, List<UUID> driverIds, UUID activeDriverId) {
         Brand brand = brandRepository.findById(brandId).orElse(null);
         if (brand == null) {
             throw new RuntimeException("Бренд не найден");
@@ -96,7 +90,7 @@ public class CarService {
             car.setDrivers(new ArrayList<>());
         }
 
-        if (activeDriverId != null && activeDriverId > 0) {
+        if (activeDriverId != null) {
             if (car.getDrivers().stream().noneMatch(d -> d.getId().equals(activeDriverId))) {
                 throw new RuntimeException("Активный водитель должен быть среди привязанных к машине");
             }
@@ -115,11 +109,8 @@ public class CarService {
     }
 
     @Transactional
-    public void deleteCar(Integer Id) {
+    public void deleteCar(UUID Id) {
         Car car = carRepository.findById(Id).orElseThrow(() -> new RuntimeException("Машина с ID " + Id + " не найдена"));
-//        if (!carRepository.existsById(Id)) {
-//            throw new RuntimeException("Машина с ID " + Id + " не найдена");
-//        }
         if (car.getActiveDriver() != null) {
             throw new RuntimeException("Нельзя удалить машину с активным водителем " + car.getActiveDriver().getId());
         }
@@ -128,15 +119,15 @@ public class CarService {
         carRepository.deleteCarById(Id);
     }
 
-    public Brand getBrandById(Integer id) {
+    public Brand getBrandById(UUID id) {
         return brandRepository.findById(id).orElseThrow(() -> new RuntimeException("Бренд с ID " + id + " не найден"));
     }
 
-    public Enterprise getEnterpriseById(Integer id) {
+    public Enterprise getEnterpriseById(UUID id) {
         return enterpriseRepository.findById(id).orElseThrow(() -> new RuntimeException("Предприятия с ID " + id + " не найдено"));
     }
 
-    public Page<CarResponseDto> getCarsByEnterprisePaginated(Integer enterpriseId, int page, int size, String sortBy, String sortDirection) {
+    public Page<CarResponseDto> getCarsByEnterprisePaginated(UUID enterpriseId, int page, int size, String sortBy, String sortDirection) {
         if (size > 100) {
             size = 100;
         }

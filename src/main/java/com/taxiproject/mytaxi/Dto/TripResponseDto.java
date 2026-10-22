@@ -3,17 +3,18 @@ package com.taxiproject.mytaxi.Dto;
 import jakarta.persistence.criteria.CriteriaBuilder;
 
 import java.util.List;
+import java.util.UUID;
 
 public class TripResponseDto {
-    private Long tripId;
-    private Integer carId;
+    private UUID tripId;
+    private UUID carId;
     private String startTime;
     private String endTime;
     private List<GpsPointDto> points;
 
     public TripResponseDto() {}
 
-    public TripResponseDto(Long tripId, Integer carId, String startTime, String endTime, List<GpsPointDto> points) {
+    public TripResponseDto(UUID tripId, UUID carId, String startTime, String endTime, List<GpsPointDto> points) {
         this.tripId = tripId;
         this.carId = carId;
         this.startTime = startTime;
@@ -21,19 +22,19 @@ public class TripResponseDto {
         this.points = points;
     }
 
-    public Long getTripId() {
+    public UUID getTripId() {
         return tripId;
     }
 
-    public void setTripId(Long tripId) {
+    public void setTripId(UUID tripId) {
         this.tripId = tripId;
     }
 
-    public Integer getCarId() {
+    public UUID getCarId() {
         return carId;
     }
 
-    public void setCarId(Integer carId) {
+    public void setCarId(UUID carId) {
         this.carId = carId;
     }
 

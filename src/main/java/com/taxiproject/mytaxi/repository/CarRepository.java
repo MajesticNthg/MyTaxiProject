@@ -11,12 +11,14 @@ import org.springframework.data.jpa.repository.query.JpqlQueryBuilder;
 import org.springframework.stereotype.Repository;
 import org.springframework.data.jpa.repository.Modifying;
 import java.util.List;
+import java.util.UUID;
 
 @Repository
-public interface CarRepository extends JpaRepository<Car, Integer> {
+public interface CarRepository extends JpaRepository<Car, UUID> {
 
     @Query("SELECT CASE WHEN COUNT(c) > 0 THEN true ELSE false END FROM Car c WHERE c.activeDriver.id = :driverId AND c.id <> :carId")
-    boolean existsActiveDriverIdAndIdNot(Integer driverId, Integer carId);
+    boolean existsActiveDriverIdAndIdNot(UUID driverId, UUID carId);
+    boolean existsByLicensePlate(String licensePlate);
 
     @Query(value = """
         SELECT 
@@ -25,7 +27,7 @@ public interface CarRepository extends JpaRepository<Car, Integer> {
             c.year_of_release as yearOfRelease,
             c.car_mileage as carMileage,
             c.price,
-            COALESCE(c.active_driver_id, -1) as activeDriverId,
+            COALESCE(c.active_driver_id, null) as activeDriverId,
             c.brand_id as brandId
         FROM cars c
         LEFT JOIN drivers d ON c.active_driver_id = d.id;
@@ -39,38 +41,27 @@ public interface CarRepository extends JpaRepository<Car, Integer> {
             c.year_of_release as yearOfRelease,
             c.car_mileage as carMileage,
             c.price,
-            COALESCE(c.active_driver_id, -1) as activeDriverId,
+            COALESCE(c.active_driver_id, null) as activeDriverId,
             c.brand_id as brandId
         FROM cars c
         LEFT JOIN drivers d ON c.active_driver_id = d.id
         WHERE c.id = :id
         """, nativeQuery = true)
-    CarWithBrandIdProjection findCarByIdWithBrandId(@Param("id") Integer id);
+    CarWithBrandIdProjection findCarByIdWithBrandId(@Param("id") UUID id);
 
     @Modifying
     @Query(value = "DELETE FROM car_drivers WHERE car_id = :carId", nativeQuery = true)
-    void deleteCarDriversByCarId(@Param("carId") Integer carId);
+    void deleteCarDriversByCarId(@Param("carId") UUID carId);
 
     @Modifying
     @Query(value = "DELETE FROM cars WHERE id = :carId", nativeQuery = true)
-    void deleteCarById(@Param("carId") Integer carId);
+    void deleteCarById(@Param("carId") UUID carId);
 
-    // новый метод
-//    @Query(value = """
-//    SELECT
-//        c.id as id,
-//        c.license_plate as licensePlate,
-//        c.year_of_release as yearOfRelease,
-//        c.car_mileage as carMileage,
-//        c.price as price,
-//        c.brand_id as brandId,
-//        c.active_driver_id as activeDriverId
-//    FROM cars c
-//    WHERE c.enterprise_id = :enterpriseId
-//    """, nativeQuery = true)
     Page<Car> findCarsByEnterpriseId(
-             Integer enterpriseId,
+             UUID enterpriseId,
             Pageable pageable
     );
+
+    List<Car> findByEnterpriseId(UUID enterpriseId);
 
     }

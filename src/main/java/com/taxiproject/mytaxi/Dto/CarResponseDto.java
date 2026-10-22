@@ -6,19 +6,20 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.UUID;
 
 
 public class CarResponseDto {
-    private Integer id;
+    private UUID id;
     private String licensePlate;
     private String yearOfRelease;
     private String carMileage;
     private Integer price;
-    private Integer brandId;
+    private UUID brandId;
     private String brandName;
-    private Integer enterpriseId;
+    private UUID enterpriseId;
     private String enterpriseName;
-    private Integer activeDriverId;
+    private UUID activeDriverId;
     private String purchaseDateTime;
 
     public CarResponseDto(Car car, String enterpriseTimezone) {
@@ -50,15 +51,15 @@ public class CarResponseDto {
         }
     }
 
-    public Integer getId() { return id; }
+    public UUID getId() { return id; }
     public String getLicensePlate() { return licensePlate; }
     public String getYearOfRelease() { return yearOfRelease; }
     public String getCarMileage() { return carMileage; }
     public Integer getPrice() { return price; }
-    public Integer getBrandId() { return brandId; }
+    public UUID getBrandId() { return brandId; }
     public String getBrandName() { return brandName; }
-    public Integer getEnterpriseId() { return enterpriseId; }
+    public UUID getEnterpriseId() { return enterpriseId; }
     public String getEnterpriseName() { return enterpriseName; }
-    public Integer getActiveDriverId() { return activeDriverId; }
+    public UUID getActiveDriverId() { return activeDriverId; }
     public String getPurchaseDateTime() { return purchaseDateTime; }
 }

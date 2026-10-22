@@ -34,6 +34,7 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Service
@@ -95,7 +96,7 @@ public class GpsTrackGeneratorService {
         }
     }
 
-    public List<GpsPoint> generateTrackByRoads(Integer carId, double startLat, double startLon, double endLat, double endLon,
+    public List<GpsPoint> generateTrackByRoads(UUID carId, double startLat, double startLon, double endLat, double endLon,
                                                int pointsCount, int intervalSeconds, double speedMin, double speedMax, double altitudeMin, double altitudeMax) throws Exception {
         if (graphHopper == null) {
             throw new IllegalStateException("GraphHopper не инициализирован. Проверьта наличие OSM файла");
@@ -169,7 +170,7 @@ public class GpsTrackGeneratorService {
         return track;
     }
 
-    public List<GpsPoint> generateTrackInBoundingBox (Integer carId, double minLat, double maxLat, double minLon, double maxLon,
+    public List<GpsPoint> generateTrackInBoundingBox (UUID carId, double minLat, double maxLat, double minLon, double maxLon,
                                                       int pointsCount, int intervalSeconds, double speedMin, double speedMax) throws Exception {
         double startLat = minLat + random.nextDouble() * (maxLat - minLat);
         double startLon = minLon + random.nextDouble() * (maxLon - minLon);

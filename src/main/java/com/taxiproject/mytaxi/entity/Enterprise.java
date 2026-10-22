@@ -2,14 +2,16 @@ package com.taxiproject.mytaxi.entity;
 import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Table(name = "enterprises")
 public class Enterprise {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "id", columnDefinition = "UUID")
+    private UUID id;
 
     @Column(unique = true)
     private String name;
@@ -39,11 +41,11 @@ public class Enterprise {
         this.employeeCount = employeeCount;
     }
 
-    public Integer getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 

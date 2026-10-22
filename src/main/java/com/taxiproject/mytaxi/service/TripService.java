@@ -19,10 +19,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -39,7 +36,7 @@ public class TripService {
         this.geoapifyService = geoapifyService;
     }
 
-    public List<TripResponseDto> getTripWithPoints (Integer carId, LocalDateTime from, LocalDateTime to) {
+    public List<TripResponseDto> getTripWithPoints (UUID carId, LocalDateTime from, LocalDateTime to) {
         Car car = carRepository.findById(carId).orElseThrow(() -> new RuntimeException("машина не найдена"));
 
         Enterprise enterprise = car.getEnterprise();
@@ -65,7 +62,7 @@ public class TripService {
         return result;
     }
 
-    public List<GpsPointDto> getTripAsSingleTrack(Integer carId, LocalDateTime from, LocalDateTime to) {
+    public List<GpsPointDto> getTripAsSingleTrack(UUID carId, LocalDateTime from, LocalDateTime to) {
         Car car = carRepository.findById(carId).orElseThrow(() -> new RuntimeException("машина не найдена"));
 
         Enterprise enterprise = car.getEnterprise();
@@ -94,7 +91,7 @@ public class TripService {
         return utc.atZone(ZoneId.of("UTC")).withZoneSameInstant(zone).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
     }
 
-    private GpsPointDto convertToDto(GpsPoint point, ZoneId zone, Long tripId) {
+    private GpsPointDto convertToDto(GpsPoint point, ZoneId zone, UUID tripId) {
         ZonedDateTime zonedTime = point.getTimestamp().atZone(ZoneId.of("UTC")).withZoneSameInstant(zone);
         return new GpsPointDto(
                 point.getId(),
@@ -108,15 +105,15 @@ public class TripService {
         );
     }
 
-    public List<TripListDto> getTripList(Integer carId, LocalDateTime from, LocalDateTime to) {
-        System.out.println("🔍 Запрос поездок: carId=" + carId + ", from=" + from + ", to=" + to);
+    public List<TripListDto> getTripList(UUID carId, LocalDateTime from, LocalDateTime to) {
+        System.out.println("Запрос поездок: carId=" + carId + ", from=" + from + ", to=" + to);
         Car car = carRepository.findById(carId).orElseThrow(() -> new RuntimeException("Машина не найдена"));
 
         Enterprise enterprise = car.getEnterprise();
         ZoneId zone = ZoneId.of(enterprise.getTimezone() != null ? enterprise.getTimezone() : "UTC");
 
         List<Trip> trips = tripRepository.findByCarAndPeriod(carId, from, to);
-        System.out.println("📋 Найдено поездок в репозитории: " + trips.size());
+        System.out.println("Найдено поездок в репозитории: " + trips.size());
         List<TripListDto> result = new ArrayList<>();
 
         List<double[]> coordinates = new ArrayList<>();

@@ -1,9 +1,10 @@
 package com.taxiproject.mytaxi.Dto;
 
 import java.util.List;
+import java.util.UUID;
 
 public class EnterpriseWithCarsAndDriversDto {
-    private Integer id;
+    private UUID id;
     private String name;
     private String city;
     private Integer employeeCount;
@@ -12,7 +13,7 @@ public class EnterpriseWithCarsAndDriversDto {
 
     public EnterpriseWithCarsAndDriversDto() {}
 
-    public EnterpriseWithCarsAndDriversDto(Integer id, String name, String city, Integer employeeCount, List<CarSimpleDto> cars, List<DriverSimpleDto> drivers) {
+    public EnterpriseWithCarsAndDriversDto(UUID id, String name, String city, Integer employeeCount, List<CarSimpleDto> cars, List<DriverSimpleDto> drivers) {
         this.id = id;
         this.name = name;
         this.city = city;
@@ -21,11 +22,11 @@ public class EnterpriseWithCarsAndDriversDto {
         this.drivers = drivers;
     }
 
-    public Integer getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 

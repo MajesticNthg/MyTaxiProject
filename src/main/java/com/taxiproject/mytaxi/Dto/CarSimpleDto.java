@@ -1,21 +1,23 @@
 package com.taxiproject.mytaxi.Dto;
 
+import java.util.UUID;
+
 public class CarSimpleDto {
-    private Integer id;
+    private UUID id;
     private String licencePlate;
 
     public CarSimpleDto() {}
 
-    public CarSimpleDto(Integer id, String licencePlate) {
+    public CarSimpleDto(UUID id, String licencePlate) {
         this.id = id;
         this.licencePlate = licencePlate;
     }
 
-    public Integer getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 

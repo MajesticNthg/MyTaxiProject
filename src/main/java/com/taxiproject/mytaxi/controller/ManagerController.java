@@ -7,6 +7,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import java.util.UUID;
 
 @Controller
 @RequestMapping("/managers")
@@ -41,7 +42,7 @@ public class ManagerController {
     }
 
     @GetMapping("/edit/{id}")
-    public String showEditForm(@PathVariable Integer id, Model model) {
+    public String showEditForm(@PathVariable UUID id, Model model) {
         Manager manager = managerService.getManagerById(id);
         model.addAttribute("manager", manager);
         model.addAttribute("enterprises", enterpriseService.getAllEnterprises());
@@ -49,14 +50,14 @@ public class ManagerController {
     }
 
     @PostMapping("/update/{id}")
-    public String updateManager(@PathVariable Integer id, @ModelAttribute Manager manager, @RequestParam(required = false) String password, @RequestParam(required = false) List<Integer> enterpriseIds) {
+    public String updateManager(@PathVariable UUID id, @ModelAttribute Manager manager, @RequestParam(required = false) String password, @RequestParam(required = false) List<UUID> enterpriseIds) {
         manager.setId(id);
         managerService.updateManager(manager, password, enterpriseIds);
         return "redirect:/managers";
     }
 
     @GetMapping("/delete/{id}")
-    public String deleteManager(@PathVariable Integer id) {
+    public String deleteManager(@PathVariable UUID id) {
         managerService.deleteManager(id);
         return "redirect:/managers";
     }

@@ -11,11 +11,7 @@ import com.taxiproject.mytaxi.util.RandomCarFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Random;
-import java.util.Collections;
+import java.util.*;
 
 @Service
 public class CarGeneratorService {
@@ -34,7 +30,7 @@ public class CarGeneratorService {
     }
 
     @Transactional
-    public void generateCars(Integer enterpriseId, int count) {
+    public void generateCars(UUID enterpriseId, int count) {
         Enterprise enterprise = enterpriseRepository.findById(enterpriseId).orElseThrow(() -> new RuntimeException("Предприятие с ID " + enterpriseId + " не найдено"));
 
         List<Brand> brands = brandRepository.findAll();

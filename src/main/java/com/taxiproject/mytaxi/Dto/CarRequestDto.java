@@ -1,5 +1,7 @@
 package com.taxiproject.mytaxi.Dto;
 import java.util.List;
+import java.util.UUID;
+
 import jakarta.validation.constraints.NotBlank;
 
 public class CarRequestDto {
@@ -8,10 +10,10 @@ public class CarRequestDto {
     private String yearOfRelease;
     private String carMileage;
     private Integer price;
-    private Integer brandId;
-    private Integer enterpriseId;
-    private List<Integer> driverIds;
-    private Integer activeDriverId;
+    private UUID brandId;
+    private UUID enterpriseId;
+    private List<UUID> driverIds;
+    private UUID activeDriverId;
     private String purchaseDateTime;
 
     public String getLicensePlate() {
@@ -46,35 +48,35 @@ public class CarRequestDto {
         this.price = price;
     }
 
-    public Integer getBrandId() {
+    public UUID getBrandId() {
         return brandId;
     }
 
-    public void setBrandId(Integer brandId) {
+    public void setBrandId(UUID brandId) {
         this.brandId = brandId;
     }
 
-    public Integer getEnterpriseId() {
+    public UUID getEnterpriseId() {
         return enterpriseId;
     }
 
-    public void setEnterpriseId(Integer enterpriseId) {
+    public void setEnterpriseId(UUID enterpriseId) {
         this.enterpriseId = enterpriseId;
     }
 
-    public List<Integer> getDriverIds() {
+    public List<UUID> getDriverIds() {
         return driverIds;
     }
 
-    public void setDriverIds(List<Integer> driverIds) {
+    public void setDriverIds(List<UUID> driverIds) {
         this.driverIds = driverIds;
     }
 
-    public Integer getActiveDriverId() {
+    public UUID getActiveDriverId() {
         return activeDriverId;
     }
 
-    public void setActiveDriverId(Integer activeDriverId) {
+    public void setActiveDriverId(UUID activeDriverId) {
         this.activeDriverId = activeDriverId;
     }
 

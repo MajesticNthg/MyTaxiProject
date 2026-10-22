@@ -7,6 +7,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @Controller
 @RequestMapping("/drivers")
 public class DriverController {
@@ -33,13 +35,13 @@ public class DriverController {
     }
 
     @PostMapping("/save")
-    public String saveDriver(@ModelAttribute Driver driver, @RequestParam Integer enterpriseId) {
+    public String saveDriver(@ModelAttribute Driver driver, @RequestParam UUID enterpriseId) {
         driverService.saveDriver(driver, enterpriseId);
         return "redirect:/drivers";
     }
 
     @GetMapping("/edit/{id}")
-    public String showEditForm(@PathVariable Integer id, Model model) {
+    public String showEditForm(@PathVariable UUID id, Model model) {
         Driver driver = driverService.getDriverById(id);
         model.addAttribute("driver", driver);
         model.addAttribute("enterprises", enterpriseService.getAllEnterprises());
@@ -47,14 +49,14 @@ public class DriverController {
     }
 
     @PostMapping("/update/{id}")
-    public String updateDriver(@PathVariable Integer id, @ModelAttribute Driver driver, @RequestParam Integer enterpriseId) {
+    public String updateDriver(@PathVariable UUID id, @ModelAttribute Driver driver, @RequestParam UUID enterpriseId) {
         driver.setId(id);
         driverService.updateDriver(driver, enterpriseId);
         return "redirect:/drivers";
     }
 
     @GetMapping("/delete/{id}")
-    public String deleteDriver (@PathVariable Integer id) {
+    public String deleteDriver (@PathVariable UUID id) {
         driverService.deleteDriver(id);
         return "redirect:/drivers";
     }

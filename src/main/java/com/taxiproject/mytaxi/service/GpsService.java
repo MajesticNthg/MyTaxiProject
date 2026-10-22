@@ -16,10 +16,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -35,7 +32,7 @@ public class GpsService {
         this.enterpriseRepository = enterpriseRepository;
     }
 
-    public List<GpsPointDto> getPointsAsJson(Integer carId, LocalDateTime from, LocalDateTime to, String enterpriseTimezone) {
+    public List<GpsPointDto> getPointsAsJson(UUID carId, LocalDateTime from, LocalDateTime to, String enterpriseTimezone) {
         List<GpsPoint> points = gpsPointRepository.findByCarIdAndTimestampBetweenOrderByTimestampAsc(carId, from, to);
 
         ZoneId enterpriseZone = ZoneId.of(enterpriseTimezone != null ? enterpriseTimezone : "UTC");
@@ -43,7 +40,7 @@ public class GpsService {
         return points.stream().map(p -> convertToDto(p, enterpriseZone, null)).collect(Collectors.toList());
     }
 
-    public Object getPointsAsGeoJson(Integer carId, LocalDateTime from, LocalDateTime to, String enterpriseTimezone, boolean asTrack) {
+    public Object getPointsAsGeoJson(UUID carId, LocalDateTime from, LocalDateTime to, String enterpriseTimezone, boolean asTrack) {
         List<GpsPoint> points = gpsPointRepository.findByCarIdAndTimestampBetweenOrderByTimestampAsc(carId, from, to);
 
         ZoneId enterpriseZone = ZoneId.of(enterpriseTimezone != null ? enterpriseTimezone : "UTC");
@@ -55,7 +52,7 @@ public class GpsService {
         }
     }
 
-    private GpsPointDto convertToDto(GpsPoint point, ZoneId zone, Long tripId) {
+    private GpsPointDto convertToDto(GpsPoint point, ZoneId zone, UUID tripId) {
         ZonedDateTime zonedTime = point.getTimestamp().atZone(ZoneId.of("UTC")).withZoneSameInstant(zone);
         return new GpsPointDto(
                 point.getId(),

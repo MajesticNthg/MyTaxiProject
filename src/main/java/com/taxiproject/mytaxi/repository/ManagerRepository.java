@@ -6,9 +6,10 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
-public interface ManagerRepository extends JpaRepository<Manager, Integer> {
+public interface ManagerRepository extends JpaRepository<Manager, UUID> {
     Optional<Manager> findByUsername(String username);
 
     @Query(value = """
@@ -51,5 +52,5 @@ public interface ManagerRepository extends JpaRepository<Manager, Integer> {
     FROM managers m
     WHERE m.id = :id
     """, nativeQuery = true)
-String findManagerWithEnterprisesById(@Param("id") Integer id);
+String findManagerWithEnterprisesById(@Param("id") UUID id);
 }

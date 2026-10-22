@@ -4,6 +4,7 @@ import com.taxiproject.mytaxi.entity.Brand;
 import com.taxiproject.mytaxi.repository.BrandRepository;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class BrandService {
@@ -17,7 +18,7 @@ public class BrandService {
         return brandRepository.findAll();
     }
 
-    public Brand getBrandById(Integer id) {
+    public Brand getBrandById(UUID id) {
         Brand brand = brandRepository.findById(id).orElse(null);
         if (brand == null) {
             throw new RuntimeException("Бренд с ID" + id + " не найден");
@@ -36,7 +37,7 @@ public class BrandService {
         brandRepository.save(brand);
     }
 
-    public void deleteBrand(Integer id) {
+    public void deleteBrand(UUID id) {
         brandRepository.deleteById(id);
     }
 }

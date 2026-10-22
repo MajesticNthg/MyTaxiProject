@@ -6,6 +6,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @Controller
 @RequestMapping("/enterprises")
 public class EnterpriseController {
@@ -35,21 +37,21 @@ public class EnterpriseController {
     }
 
     @GetMapping("/edit/{id}")
-    public String showEditForm (@PathVariable Integer id, Model model) {
+    public String showEditForm (@PathVariable UUID id, Model model) {
         Enterprise enterprise = enterpriseService.getEnterpriseById(id);
         model.addAttribute("enterprise", enterprise);
         return "enterprise-edit";
     }
 
     @PostMapping("/update/{id}")
-    public String updateEnterprise(@PathVariable Integer id, @ModelAttribute Enterprise enterprise) {
+    public String updateEnterprise(@PathVariable UUID id, @ModelAttribute Enterprise enterprise) {
         enterprise.setId(id);
         enterpriseService.updateEnterprise(enterprise);
         return "redirect:/enterprises";
     }
 
     @GetMapping("/delete/{id}")
-    public String deleteEnterprise(@PathVariable Integer id) {
+    public String deleteEnterprise(@PathVariable UUID id) {
         enterpriseService.deleteEnterprise(id);
         return "redirect:/enterprises";
     }

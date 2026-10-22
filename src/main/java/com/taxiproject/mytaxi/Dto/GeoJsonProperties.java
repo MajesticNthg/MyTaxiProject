@@ -1,25 +1,27 @@
 package com.taxiproject.mytaxi.Dto;
 
+import java.util.UUID;
+
 public class GeoJsonProperties {
-    private Long id;
+    private UUID id;
     private Double speed;
     private Double altitude;
     private String timestamp;
 
     public GeoJsonProperties() {}
 
-    public GeoJsonProperties(Long id, Double speed, Double altitude, String timestamp) {
+    public GeoJsonProperties(UUID id, Double speed, Double altitude, String timestamp) {
         this.id = id;
         this.speed = speed;
         this.altitude = altitude;
         this.timestamp = timestamp;
     }
 
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 

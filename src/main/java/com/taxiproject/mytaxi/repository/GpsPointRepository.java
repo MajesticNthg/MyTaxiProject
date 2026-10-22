@@ -9,22 +9,23 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Repository
-public interface GpsPointRepository extends JpaRepository<GpsPoint, Long> {
+public interface GpsPointRepository extends JpaRepository<GpsPoint, UUID> {
 
     Page<GpsPoint> findByCarIdAndTimestampBetween(
-            Integer carId,
+            UUID carId,
             LocalDateTime from,
             LocalDateTime to,
             Pageable pageable
     );
 
     List<GpsPoint> findByCarIdAndTimestampBetweenOrderByTimestampAsc(
-            Integer carId,
+            UUID carId,
             LocalDateTime from,
             LocalDateTime to
     );
 
-    GpsPoint findTopByCarIdOrderByTimestampDesc(Integer carId);
+    GpsPoint findTopByCarIdOrderByTimestampDesc(UUID carId);
 }

@@ -2,9 +2,11 @@ package com.taxiproject.mytaxi.Dto;
 
 import com.taxiproject.mytaxi.entity.GpsPoint;
 
+import java.util.UUID;
+
 public class GpsPointDto {
-    private Long id;
-    private Long tripId;
+    private UUID id;
+    private UUID tripId;
     private Double latitude;
     private Double longitude;
     private Double altitude;
@@ -14,7 +16,7 @@ public class GpsPointDto {
 
     public GpsPointDto() {}
 
-    public GpsPointDto(Long id, Long tripId, Double latitude, Double longitude, Double altitude, Double speed, Double heading, String timestamp) {
+    public GpsPointDto(UUID id, UUID tripId, Double latitude, Double longitude, Double altitude, Double speed, Double heading, String timestamp) {
         this.id = id;
         this.tripId = tripId;
         this.latitude = latitude;
@@ -25,19 +27,19 @@ public class GpsPointDto {
         this.timestamp = timestamp;
     }
 
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 
-    public Long getTripId() {
+    public UUID getTripId() {
         return tripId;
     }
 
-    public void setTripId(Long tripId) {
+    public void setTripId(UUID tripId) {
         this.tripId = tripId;
     }
 

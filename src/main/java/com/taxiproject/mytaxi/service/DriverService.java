@@ -6,6 +6,7 @@ import com.taxiproject.mytaxi.repository.DriverRepository;
 import com.taxiproject.mytaxi.repository.EnterpriseRepository;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class DriverService {
@@ -22,7 +23,7 @@ public class DriverService {
         return driverRepository.findAll();
     }
 
-    public Driver getDriverById(Integer id) {
+    public Driver getDriverById(UUID id) {
         Driver driver = driverRepository.findById(id).orElse(null);
         if (driver == null) {
             throw new RuntimeException("Водитель с ID" + id + " не найден");
@@ -30,7 +31,7 @@ public class DriverService {
         return driver;
     }
 
-    public void saveDriver(Driver driver, Integer enterpriseId) {
+    public void saveDriver(Driver driver, UUID enterpriseId) {
         Enterprise enterprise = enterpriseRepository.findById(enterpriseId).orElse(null);
         if (enterprise == null) {
             throw new RuntimeException("Предприятие не найдено");
@@ -40,19 +41,16 @@ public class DriverService {
         driverRepository.save(driver);
     }
 
-    public void updateDriver(Driver driver, Integer enterpriseId) {
+    public void updateDriver(Driver driver, UUID enterpriseId) {
         Enterprise enterprise = enterpriseRepository.findById(enterpriseId).orElse(null);
         if (enterprise == null) {
             throw new RuntimeException("Предприятие не найдено");
         }
         driver.setEnterprise(enterprise);
-//        if (!driverRepository.existsById(driver.getId())) {
-//            throw new RuntimeException("Водитель с ID" + driver.getId() + " не найден");
-//        }
         driverRepository.save(driver);
     }
 
-    public void deleteDriver(Integer id) {
+    public void deleteDriver(UUID id) {
         driverRepository.deleteById(id);
     }
 }

@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("api/trips")
@@ -22,7 +23,7 @@ public class TripController {
 
     @GetMapping
     public ResponseEntity<List<TripResponseDto>> getTrips (
-            @RequestParam Integer carId,
+            @RequestParam UUID carId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime to)
     {
@@ -32,7 +33,7 @@ public class TripController {
 
     @GetMapping("/track")
     public ResponseEntity<List<GpsPointDto>> getTripsAsTrack (
-            @RequestParam Integer carId,
+            @RequestParam UUID carId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime to
     ) {
@@ -41,7 +42,7 @@ public class TripController {
     }
 
     @GetMapping("/list")
-    public ResponseEntity<List<TripListDto>> getTripList (@RequestParam Integer carId,
+    public ResponseEntity<List<TripListDto>> getTripList (@RequestParam UUID carId,
                                                           @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from,
                                                           @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime to) {
         List<TripListDto> trips = tripService.getTripList(carId, from, to);

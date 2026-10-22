@@ -15,6 +15,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RestController
@@ -39,9 +40,7 @@ public class EnterpriseRestController {
         if (isAdmin) {
             return enterpriseRepository.findAllEnterprisesProjection();
         } else {
-            // Для USER — нужно отфильтровать предприятия
             List<Enterprise> enterprises = enterpriseService.getEnterprisesForManager(username);
-            // Преобразуем в проекцию (придётся сделать вручную, так как проекция из репозитория)
             return enterprises.stream()
                     .map(this::convertToProjection)
                     .collect(Collectors.toList());
@@ -49,14 +48,14 @@ public class EnterpriseRestController {
     }
 
     @GetMapping("/{id}")
-    public EnterpriseProjection getEnterpriseById(@PathVariable Integer id) {
+    public EnterpriseProjection getEnterpriseById(@PathVariable UUID id) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         enterpriseService.checkAccessToEnterprise(id, username);
         return enterpriseRepository.findEnterpriseByIdProjection(id);
     }
 
     @GetMapping("/withCarsAndDrivers/{id}")
-    public EnterpriseWithCarsAndDriversDto getEnterpriseWithCarsAndDrivers(@PathVariable Integer id) {
+    public EnterpriseWithCarsAndDriversDto getEnterpriseWithCarsAndDrivers(@PathVariable UUID id) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         enterpriseService.checkAccessToEnterprise(id, username);
 
@@ -86,7 +85,7 @@ public class EnterpriseRestController {
     }
 
     @GetMapping(value = "/full-json/{id}", produces = "application/json")
-    public ResponseEntity<String> getEnterpriseFullJson(@PathVariable Integer id) {
+    public ResponseEntity<String> getEnterpriseFullJson(@PathVariable UUID id) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         enterpriseService.checkAccessToEnterprise(id, username);
 
@@ -100,7 +99,7 @@ public class EnterpriseRestController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteEnterprise(@PathVariable Integer id) {
+    public ResponseEntity<Void> deleteEnterprise(@PathVariable UUID id) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         enterpriseService.checkAccessToEnterprise(id, username);
         enterpriseService.deleteEnterprise(id);
@@ -110,7 +109,7 @@ public class EnterpriseRestController {
     private EnterpriseProjection convertToProjection(Enterprise enterprise) {
         return new EnterpriseProjection() {
             @Override
-            public Integer getId() {
+            public UUID getId() {
                 return enterprise.getId();
             }
 
@@ -139,7 +138,7 @@ public class EnterpriseRestController {
 
     @PutMapping("/{id}/timezone")
     public ResponseEntity<?> updateTimezone(
-            @PathVariable Integer id,
+            @PathVariable UUID id,
             @RequestBody Map<String, String> request
     ) {
         String timezone = request.get("timezone");

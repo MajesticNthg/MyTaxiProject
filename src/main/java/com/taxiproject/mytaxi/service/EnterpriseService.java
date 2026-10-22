@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class EnterpriseService {
@@ -21,7 +22,7 @@ public class EnterpriseService {
         this.managerRepository = managerRepository;
     }
 
-    public void checkAccessToEnterprise(Integer enterpriseId, String username) {
+    public void checkAccessToEnterprise(UUID enterpriseId, String username) {
         Enterprise enterprise = enterpriseRepository.findById(enterpriseId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Предприятие не найдено"));
 
@@ -43,7 +44,7 @@ public class EnterpriseService {
         return enterpriseRepository.findAll();
     }
 
-    public Enterprise getEnterpriseById (Integer id) {
+    public Enterprise getEnterpriseById (UUID id) {
         Enterprise enterprise = enterpriseRepository.findById(id).orElse(null);
         if (enterprise == null) {
             throw new RuntimeException("ПРедприятие с ID" + id + " не найдено");
@@ -62,7 +63,7 @@ public class EnterpriseService {
         enterpriseRepository.save(enterprise);
     }
 
-    public void deleteEnterprise(Integer id) {
+    public void deleteEnterprise(UUID id) {
         Enterprise enterprise = enterpriseRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Предприятие не найдено"));
 

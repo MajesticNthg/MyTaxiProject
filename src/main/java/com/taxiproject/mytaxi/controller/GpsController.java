@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/gps")
@@ -30,7 +31,7 @@ public class GpsController {
     }
 
     @GetMapping("/points")
-    public ResponseEntity<?> getPoints (@RequestParam Integer carId,
+    public ResponseEntity<?> getPoints (@RequestParam UUID carId,
                                         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from,
                                         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime to,
                                         @RequestParam(defaultValue = "json") String format,

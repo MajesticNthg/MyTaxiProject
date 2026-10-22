@@ -4,14 +4,16 @@ import jakarta.persistence.*;
 import jakarta.persistence.criteria.CriteriaBuilder;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 
 @Entity
 public class Brand {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "id", columnDefinition = "UUID")
+    private UUID id;
 
     private String brandName;
 
@@ -38,11 +40,11 @@ public class Brand {
         this.enginePower = enginePower;
     }
 
-    public Integer getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 

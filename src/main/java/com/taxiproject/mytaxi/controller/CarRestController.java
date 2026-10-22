@@ -17,6 +17,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/cars")
@@ -35,7 +36,7 @@ public class CarRestController {
     }
 
     @GetMapping("/{id}")
-    public CarWithBrandIdProjection getCarById (@PathVariable Integer id) {
+    public CarWithBrandIdProjection getCarById (@PathVariable UUID id) {
         CarWithBrandIdProjection car = carRepository.findCarByIdWithBrandId(id);
         if (car == null) {
             throw new RuntimeException("Машина с ID" + id + " не найдена");
@@ -68,7 +69,7 @@ public class CarRestController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Map<String, Object>> updateCar(@PathVariable Integer id, @RequestBody CarRequestDto request) {
+    public ResponseEntity<Map<String, Object>> updateCar(@PathVariable UUID id, @RequestBody CarRequestDto request) {
         Car existingCar = carService.getCarById(id);
 
         existingCar.setLicensePlate(request.getLicensePlate());
@@ -99,7 +100,7 @@ public class CarRestController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteCar(@PathVariable Integer id) {
+    public ResponseEntity<?> deleteCar(@PathVariable UUID id) {
         try {
             carService.deleteCar(id);
             return ResponseEntity.noContent().build();
@@ -113,7 +114,7 @@ public class CarRestController {
     }
 
     @GetMapping("/paginated")
-    public ResponseEntity<Page<CarResponseDto>> getCarPaginated (@RequestParam Integer enterpriseId, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size,
+    public ResponseEntity<Page<CarResponseDto>> getCarPaginated (@RequestParam UUID enterpriseId, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size,
                                                                  @RequestParam(defaultValue = "id") String sortBy, @RequestParam(defaultValue = "asc") String sortDirection) {
         Page<CarResponseDto> cars = carService.getCarsByEnterprisePaginated(enterpriseId, page, size, sortBy, sortDirection);
         return ResponseEntity.ok(cars);

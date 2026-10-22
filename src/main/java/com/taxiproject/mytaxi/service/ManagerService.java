@@ -12,6 +12,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.UUID;
 
 @Service
 public class ManagerService implements UserDetailsService {
@@ -34,7 +35,7 @@ public class ManagerService implements UserDetailsService {
         return managerRepository.findAll();
     }
 
-    public Manager getManagerById(Integer id) {
+    public Manager getManagerById(UUID id) {
         return managerRepository.findById(id).orElseThrow(() -> new RuntimeException("Менеджер с ID " + id + " не найден"));
     }
 
@@ -44,7 +45,7 @@ public class ManagerService implements UserDetailsService {
         managerRepository.save(manager);
     }
 
-    public void updateManager(Manager manager, String rawPassword, List<Integer> enterpriseIds) {
+    public void updateManager(Manager manager, String rawPassword, List<UUID> enterpriseIds) {
         Manager existing = managerRepository.findById(manager.getId()).orElseThrow();
         existing.setUsername(manager.getUsername());
         existing.setFullName(manager.getFullName());
@@ -62,7 +63,7 @@ public class ManagerService implements UserDetailsService {
         managerRepository.save(existing);
     }
 
-    public void deleteManager(Integer id) {
+    public void deleteManager(UUID id) {
         managerRepository.deleteById(id);
     }
 }
