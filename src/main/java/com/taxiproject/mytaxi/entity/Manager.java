@@ -91,6 +91,14 @@ public class Manager implements UserDetails {
         this.email = email;
     }
 
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
+
     public List<Enterprise> getEnterprises() {
         return enterprises;
     }

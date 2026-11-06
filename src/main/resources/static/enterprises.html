@@ -183,7 +183,7 @@
                             ${enterprise.managers ? enterprise.managers.length : 0} менеджеров
                         </p>
                         <button class="btn btn-outline-primary btn-sm w-100"
-                                onclick="viewEnterprise(${enterprise.id})">
+                                onclick="viewEnterprise('${enterprise.id}')">
                             <i class="bi bi-eye"></i> Подробнее
                         </button>
                     </div>
@@ -193,7 +193,7 @@
     }
 
     function viewEnterprise(id) {
-        // alert(`Переход к предприятию ID: ${id}`);
+        console.log('viewEnterprise called with:', id);
         window.location.href = `/enterprise.html?id=${id}`;
     }
 

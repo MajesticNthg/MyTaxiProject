@@ -8,3 +8,5 @@
 1789285639935:help
 1789285769083:generate-track -c 1 --start-lat 55.7558 --start-lon 37.6173 --end-lat 55.7565 --end-lon 37.6190 -n 50 -i 5
 1789287214314:generate-track-in-city -c 1 --city Moscow -n 100 -i 10
+1793557812157:generate-track -c 1392aa5d-ba7c-4958-8fd2-8d0dae9c158e \\\n  --start-lat 55.7558 --start-lon 37.6173 \\\n  --end-lat 54.9146 --end-lon 37.4117 \\\n  -n 100 -i 10generate-track -c 1392aa5d-ba7c-4958-8fd2-8d0dae9c158e \\\n  --start-lat 55.7558 --start-lon 37.6173 \\\n  --end-lat 54.9146 --end-lon 37.4117 \\\n  -n 100 -i 10
+1793557815265:generate-track -c 1392aa5d-ba7c-4958-8fd2-8d0dae9c158e \\\n  --start-lat 55.7558 --start-lon 37.6173 \\\n  --end-lat 54.9146 --end-lon 37.4117 \\\n  -n 100 -i 10

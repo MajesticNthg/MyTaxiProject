@@ -56,7 +56,7 @@ public class SecurityConfig {
         http
                 .userDetailsService(managerService)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/login.html", "/enterprises.html", "/enterprise.html", "/car.html", "/css/**", "/js/**").permitAll()
+                        .requestMatchers("/login", "/login.html", "/enterprises.html", "/enterprise.html", "/car.html", "/reports.html", "/css/**", "/js/**").permitAll()
                         .requestMatchers("/api/auth/login").permitAll()
 
                         .requestMatchers("/api/export-import/**").hasRole("ADMIN")

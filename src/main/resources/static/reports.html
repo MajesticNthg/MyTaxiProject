@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Отчёты</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .navbar-custom { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .navbar-custom .navbar-brand, .navbar-custom .nav-link { color: white; }
+        .card-report { border-radius: 12px; border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-custom">
+    <div class="container">
+        <a class="navbar-brand" href="#" id="backLink">
+            <i class="bi bi-arrow-left"></i> Назад
+        </a>
+        <div class="ms-auto">
+            <span class="text-white" id="enterpriseName"></span>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <h2><i class="bi bi-bar-chart"></i> Отчёты</h2>
+
+    <div class="card card-report mb-4">
+        <div class="card-body">
+            <div class="row g-2">
+                <div class="col-md-3">
+                    <label class="form-label">Тип отчёта</label>
+                    <select class="form-select" id="reportType">
+                        <option value="MILEAGE">Пробег автомобиля</option>
+                        <option value="TRAVEL_TIME">Время в пути</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Машина</label>
+                    <select class="form-select" id="reportCar"></select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">С</label>
+                    <input type="date" class="form-control" id="reportFrom">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">По</label>
+                    <input type="date" class="form-control" id="reportTo">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Период</label>
+                    <select class="form-select" id="reportPeriod">
+                        <option value="DAY">День</option>
+                        <option value="MONTH">Месяц</option>
+                        <option value="YEAR">Год</option>
+                    </select>
+                </div>
+                <div class="col-md-1 d-flex align-items-end">
+                    <button class="btn btn-primary w-100" id="generateReportBtn">
+                        <i class="bi bi-play"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="reportResult" class="card card-report" style="display:none;">
+        <div class="card-body">
+            <h5 id="reportTitle"></h5>
+            <table class="table table-striped mt-3">
+                <thead>
+                <tr>
+                    <th>Период</th>
+                    <th>Значение</th>
+                </tr>
+                </thead>
+                <tbody id="reportTableBody"></tbody>
+            </table>
+            <canvas id="reportChart" height="100"></canvas>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const API_BASE = 'http://172.18.160.1:8080';
+    const urlParams = new URLSearchParams(window.location.search);
+    const enterpriseId = urlParams.get('enterpriseId');
+
+    if (!enterpriseId) window.location.href = '/enterprises.html';
+
+    let chartInstance = null;
+
+    function getToken() { return localStorage.getItem('token'); }
+    function redirectToLogin() { localStorage.removeItem('token'); window.location.href = '/login.html'; }
+
+    async function fetchWithAuth(url, options = {}) {
+        const token = getToken();
+        if (!token) { redirectToLogin(); return; }
+        const response = await fetch(url, {
+            ...options,
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`, ...options.headers }
+        });
+        if (response.status === 401 || response.status === 403) { redirectToLogin(); return; }
+        return response;
+    }
+
+    async function loadEnterprise() {
+        const response = await fetchWithAuth(`${API_BASE}/api/enterprises/${enterpriseId}`);
+        if (!response) return;
+        const enterprise = await response.json();
+        document.getElementById('enterpriseName').textContent = enterprise.name;
+        document.getElementById('backLink').href = `/enterprise.html?id=${enterpriseId}`;
+    }
+
+    async function loadCars() {
+        const response = await fetchWithAuth(`${API_BASE}/api/export-import/cars?enterpriseId=${enterpriseId}&format=json`);
+        if (!response) return;
+        const cars = await response.json();
+
+        const select = document.getElementById('reportCar');
+        select.innerHTML = cars.map(car =>
+            `<option value="${car.id}">${car.licensePlate}</option>`
+        ).join('');
+    }
+
+    document.getElementById('generateReportBtn').addEventListener('click', async () => {
+        const request = {
+            reportType: document.getElementById('reportType').value,
+            carId: document.getElementById('reportCar').value,
+            enterpriseId: enterpriseId,
+            startDate: document.getElementById('reportFrom').value,
+            endDate: document.getElementById('reportTo').value,
+            periodType: document.getElementById('reportPeriod').value
+        };
+
+        if (!request.carId || !request.startDate || !request.endDate) {
+            alert('Заполните все поля');
+            return;
+        }
+
+        const response = await fetchWithAuth(`${API_BASE}/api/reports/generate`, {
+            method: 'POST',
+            body: JSON.stringify(request)
+        });
+
+        if (response && response.ok) {
+            const report = await response.json();
+            renderReport(report);
+        } else {
+            alert('Ошибка генерации отчёта');
+        }
+    });
+
+    function renderReport(report) {
+        document.getElementById('reportResult').style.display = 'block';
+        document.getElementById('reportTitle').textContent = report.name;
+
+        const tbody = document.getElementById('reportTableBody');
+        tbody.innerHTML = report.items.map(item => `
+            <tr>
+                <td>${item.period}</td>
+                <td>${item.value.toFixed(2)} ${item.unit}</td>
+            </tr>
+        `).join('');
+
+        const ctx = document.getElementById('reportChart').getContext('2d');
+        if (chartInstance) chartInstance.destroy();
+
+        chartInstance = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: report.items.map(i => i.period),
+                datasets: [{
+                    label: report.name,
+                    data: report.items.map(i => i.value),
+                    backgroundColor: 'rgba(102, 126, 234, 0.7)',
+                    borderColor: 'rgba(102, 126, 234, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: { display: true, text: report.items[0]?.unit || '' }
+                    }
+                }
+            }
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        if (!getToken()) { redirectToLogin(); return; }
+
+        const today = new Date();
+        const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+        document.getElementById('reportFrom').value = firstDay.toISOString().slice(0, 10);
+        document.getElementById('reportTo').value = today.toISOString().slice(0, 10);
+
+        loadEnterprise();
+        loadCars();
+    });
+</script>
+</body>
+</html>

@@ -26,6 +26,13 @@ public class EnterpriseService {
         Enterprise enterprise = enterpriseRepository.findById(enterpriseId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Предприятие не найдено"));
 
+        Manager manager = managerRepository.findByUsername(username)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Менеджер не найден"));
+
+        if ("ROLE_ADMIN".equals(manager.getRole())) {
+            return;
+        }
+
         boolean hasAccess = enterprise.getManagers().stream()
                 .anyMatch(m -> m.getUsername().equals(username));
 

@@ -92,6 +92,10 @@
             <h2 id="enterpriseName">Управление машинами</h2>
             <p class="text-muted" id="enterpriseCity"></p>
         </div>
+        <div class="d-flex gap-2">
+            <a href="#" id="reportsBtn" class="btn btn-outline-primary">
+                <i class="bi bi-bar-chart"></i> Отчёты
+            </a>
         <button class="btn btn-primary" id="addCarBtn">
             <i class="bi bi-plus-circle"></i> Добавить машину
         </button>
@@ -236,6 +240,14 @@
     const urlParams = new URLSearchParams(window.location.search);
     const enterpriseId = urlParams.get('id');
 
+    console.log('enterpriseId:', enterpriseId);
+    console.log('URL:', window.location.href);
+
+    document.getElementById('reportsBtn').addEventListener('click', (e) => {
+    e.preventDefault();
+    window.location.href = `/reports.html?enterpriseId=${enterpriseId}`;
+    });
+
     if (!enterpriseId) {
         window.location.href = '/enterprises.html';
     }
@@ -252,13 +264,17 @@
     }
 
     function redirectToLogin() {
+    console.trace('redirectToLogin called from:');
         localStorage.removeItem('token');
         window.location.href = '/login.html';
     }
 
     async function fetchWithAuth(url, options = {}) {
         const token = getToken();
+        console.log('🔑 fetchWithAuth token:', token);
+
         if (!token) {
+        console.log('❌ No token');
             redirectToLogin();
             return;
         }
@@ -270,7 +286,9 @@
                 ...options.headers
             }
         });
+        console.log('📡 Response:', url, response.status);
         if (response.status === 401 || response.status === 403) {
+        console.log('❌ 401/403, redirecting');
             localStorage.removeItem('token');
             redirectToLogin();
             return;
@@ -369,53 +387,53 @@ function formatLocalTime(utcTime, enterpriseTimezone) {
     }
 }
 
-    function renderCars(cars) {
-        const tbody = document.getElementById('carsTableBody');
-        const emptyState = document.getElementById('emptyState');
+function renderCars(cars) {
+    const tbody = document.getElementById('carsTableBody');
+    const emptyState = document.getElementById('emptyState');
 
-        if (!cars || cars.length === 0) {
-            tbody.innerHTML = '';
-            emptyState.style.display = 'block';
-            return;
-        }
-
-        emptyState.style.display = 'none';
-
-        tbody.innerHTML = cars.map(car => `
-            <tr>
-                <td>${car.id}</td>
-                <td><strong>${car.licensePlate || '—'}</strong></td>
-                <td>${car.yearOfRelease || '—'}</td>
-                <td>${car.carMileage || '0'}</td>
-                <td>${car.price ? car.price.toLocaleString() : '—'}</td>
-                <td>${car.brandName || '—'}</td>
-                <td>${formatLocalTime(car.purchaseDateTime, currentEnterprise?.timezone || 'UTC')}</td>
-                <td class="text-center">
-                    <button class="btn btn-outline-primary btn-action" onclick="viewCar(${car.id})">
-                        <i class="bi bi-eye"></i> Подробнее
-                    </button>
-                    <button class="btn btn-warning btn-action edit-car" data-id="${car.id}">
-                        <i class="bi bi-pencil"></i> Редактировать
-                    </button>
-                    <button class="btn btn-danger btn-action delete-car" data-id="${car.id}" data-plate="${car.licensePlate}">
-                        <i class="bi bi-trash"></i> Удалить
-                    </button>
-                </td>
-            </tr>
-        `).join('');
-
-        document.querySelectorAll('.edit-car').forEach(btn => {
-            btn.addEventListener('click', () => openEditCar(parseInt(btn.dataset.id)));
-        });
-
-        document.querySelectorAll('.delete-car').forEach(btn => {
-            btn.addEventListener('click', () => {
-                deleteCarId = parseInt(btn.dataset.id);
-                document.getElementById('deleteCarPlate').textContent = btn.dataset.plate || 'без номера';
-                deleteModal.show();
-            });
-        });
+    if (!cars || cars.length === 0) {
+        tbody.innerHTML = '';
+        emptyState.style.display = 'block';
+        return;
     }
+
+    emptyState.style.display = 'none';
+
+    tbody.innerHTML = cars.map(car => `
+        <tr>
+            <td>${car.id}</td>
+            <td><strong>${car.licensePlate || '—'}</strong></td>
+            <td>${car.yearOfRelease || '—'}</td>
+            <td>${car.carMileage || '0'}</td>
+            <td>${car.price ? car.price.toLocaleString() : '—'}</td>
+            <td>${car.brandName || '—'}</td>
+            <td>${formatLocalTime(car.purchaseDateTime, currentEnterprise?.timezone || 'UTC')}</td>
+            <td class="text-center">
+                <button class="btn btn-outline-primary btn-action" onclick="viewCar('${car.id}')">
+                    <i class="bi bi-eye"></i> Подробнее
+                </button>
+                <button class="btn btn-warning btn-action edit-car" data-id="${car.id}">
+                    <i class="bi bi-pencil"></i> Редактировать
+                </button>
+                <button class="btn btn-danger btn-action delete-car" data-id="${car.id}" data-plate="${car.licensePlate}">
+                    <i class="bi bi-trash"></i> Удалить
+                </button>
+            </td>
+        </tr>
+    `).join('');
+
+    document.querySelectorAll('.edit-car').forEach(btn => {
+        btn.addEventListener('click', () => openEditCar(btn.dataset.id));  // ✅ без parseInt
+    });
+
+    document.querySelectorAll('.delete-car').forEach(btn => {
+        btn.addEventListener('click', () => {
+            deleteCarId = btn.dataset.id;  // ✅ без parseInt
+            document.getElementById('deleteCarPlate').textContent = btn.dataset.plate || 'без номера';
+            deleteModal.show();
+        });
+    });
+}
 
     document.getElementById('addCarBtn').addEventListener('click', () => {
         isEditMode = false;
@@ -460,66 +478,65 @@ function formatLocalTime(utcTime, enterpriseTimezone) {
         window.location.href = `/car.html?carId=${carId}&id=${enterpriseId}`;
     }
 
-    document.getElementById('saveCarBtn').addEventListener('click', async () => {
-        const carId = document.getElementById('carId').value;
-        const licensePlate = document.getElementById('licensePlate').value.trim();
-        const yearOfRelease = document.getElementById('yearOfRelease').value.trim();
-        const carMileage = document.getElementById('carMileage').value.trim();
-        const price = parseFloat(document.getElementById('price').value);
-        const brandId = parseInt(document.getElementById('brandId').value);
-        const activeDriverId = document.getElementById('activeDriverId').value;
+document.getElementById('saveCarBtn').addEventListener('click', async () => {
+    const carId = document.getElementById('carId').value;
+    const licensePlate = document.getElementById('licensePlate').value.trim();
+    const yearOfRelease = document.getElementById('yearOfRelease').value.trim();
+    const carMileage = document.getElementById('carMileage').value.trim();
+    const price = parseFloat(document.getElementById('price').value);
+    const brandId = document.getElementById('brandId').value;
+    const activeDriverId = document.getElementById('activeDriverId').value;
 
-        let purchaseDateTime = document.getElementById('purchaseDateTime').value;
+    let purchaseDateTime = document.getElementById('purchaseDateTime').value;
     if (purchaseDateTime) {
         const date = new Date(purchaseDateTime);
-        purchaseDateTime = date.toISOString(); // Формат: 2024-01-15T10:30:00.000Z
+        purchaseDateTime = date.toISOString();
     } else {
         purchaseDateTime = null;
     }
 
+    if (!licensePlate) {
+        alert('Введите госномер');
+        return;
+    }
 
-        if (!licensePlate) {
-            alert('Введите госномер');
-            return;
+    const carData = {
+        licensePlate,
+        yearOfRelease,
+        carMileage,
+        price,
+        brandId,
+        enterpriseId: enterpriseId,
+        driverIds: activeDriverId ? [activeDriverId] : [],
+        activeDriverId: activeDriverId || null,
+        purchaseDateTime: purchaseDateTime
+    };
+
+    try {
+        let response;
+        if (isEditMode) {
+            response = await fetchWithAuth(`${API_BASE}/api/cars/${carId}`, {
+                method: 'PUT',
+                body: JSON.stringify(carData)
+            });
+        } else {
+            response = await fetchWithAuth(`${API_BASE}/api/cars`, {
+                method: 'POST',
+                body: JSON.stringify(carData)
+            });
         }
 
-        const carData = {
-            licensePlate,
-            yearOfRelease,
-            carMileage,
-            price,
-            brandId,
-            enterpriseId: parseInt(enterpriseId),
-            driverIds: activeDriverId ? [parseInt(activeDriverId)] : [],
-            activeDriverId: activeDriverId ? parseInt(activeDriverId) : null,
-            purchaseDateTime: purchaseDateTime
-        };
-
-        try {
-            let response;
-            if (isEditMode) {
-                response = await fetchWithAuth(`${API_BASE}/api/cars/${carId}`, {
-                    method: 'PUT',
-                    body: JSON.stringify(carData)
-                });
-            } else {
-                response = await fetchWithAuth(`${API_BASE}/api/cars`, {
-                    method: 'POST',
-                    body: JSON.stringify(carData)
-                });
-            }
-
-            if (response && response.ok) {
-                carModal.hide();
-                loadEnterprise();
-            } else {
-                alert('Ошибка при сохранении машины');
-            }
-        } catch (error) {
-            console.error('Error saving car:', error);
+        if (response && response.ok) {
+            carModal.hide();
+            loadEnterprise();
+        } else {
             alert('Ошибка при сохранении машины');
         }
-    });
+    } catch (error) {
+        console.error('Error saving car:', error);
+        alert('Ошибка при сохранении машины');
+    }
+});
 
 document.getElementById('confirmDeleteBtn').addEventListener('click', async () => {
     if (!deleteCarId) return;
@@ -595,6 +612,11 @@ document.getElementById('confirmDeleteBtn').addEventListener('click', async () =
 });
 
     document.addEventListener('DOMContentLoaded', () => {
+        console.log('🔍 DOMContentLoaded');
+        console.log('🔑 Token:', getToken());
+        console.log('🆔 enterpriseId:', enterpriseId);
+        console.log('🌐 URL:', window.location.href);
+
         const token = getToken();
         if (!token) {
             redirectToLogin();
