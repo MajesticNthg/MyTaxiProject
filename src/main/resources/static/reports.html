@@ -10,6 +10,7 @@
         .navbar-custom { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
         .navbar-custom .navbar-brand, .navbar-custom .nav-link { color: white; }
         .card-report { border-radius: 12px; border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
+
     </style>
 </head>
 <body>
@@ -61,6 +62,11 @@
                 <div class="col-md-1 d-flex align-items-end">
                     <button class="btn btn-primary w-100" id="generateReportBtn">
                         <i class="bi bi-play"></i>
+                    </button>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button class="btn btn-danger w-100" id="exportPdfBtn">
+                        <i class="bi bi-file-earmark-pdf"></i> PDF
                     </button>
                 </div>
             </div>
@@ -207,6 +213,50 @@
 
         loadEnterprise();
         loadCars();
+
+    });
+
+        document.getElementById('exportPdfBtn').addEventListener('click', async () => {
+    const request = {
+        reportType: document.getElementById('reportType').value,
+        carId: document.getElementById('reportCar').value,
+        enterpriseId: enterpriseId,
+        startDate: document.getElementById('reportFrom').value,
+        endDate: document.getElementById('reportTo').value,
+        periodType: document.getElementById('reportPeriod').value
+    };
+
+    if (!request.carId || !request.startDate || !request.endDate) {
+        alert('Заполните все поля');
+        return;
+    }
+
+    try {
+        const response = await fetchWithAuth(`${API_BASE}/api/reports/export/pdf`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(request)
+        });
+
+        if (response && response.ok) {
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `report_${request.reportType}.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            window.URL.revokeObjectURL(url);
+        } else {
+            alert('Ошибка экспорта PDF');
+        }
+    } catch (error) {
+        console.error('Error exporting PDF:', error);
+        alert('Ошибка экспорта PDF');
+    }
     });
 </script>
 </body>
